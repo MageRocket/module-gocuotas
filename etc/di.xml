@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<!--
+  ~ @author MageRocket
+  ~ @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+  ~ @link https://magerocket.com/
+  -->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Logger -->
+    <type name="MageRocket\GoCuotas\Logger\Handler\Base">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="MageRocket\GoCuotas\Logger\Handler\Exceptions">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="MageRocket\GoCuotas\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">gocuotas</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="base" xsi:type="object">MageRocket\GoCuotas\Logger\Handler\Base</item>
+                <item name="exceptions" xsi:type="object">MageRocket\GoCuotas\Logger\Handler\Exceptions</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Payment -->
+    <type name="Magento\Config\Model\Config\TypePool">
+        <arguments>
+            <argument name="sensitive" xsi:type="array">
+                <item name="payment/gocuotas/secret" xsi:type="string">1</item>
+                <item name="payment/gocuotas/sandbox/email" xsi:type="string">1</item>
+                <item name="payment/gocuotas/sandbox/password" xsi:type="string">1</item>
+                <item name="payment/gocuotas/production/email" xsi:type="string">1</item>
+                <item name="payment/gocuotas/production/password" xsi:type="string">1</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="GoCuotas" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">MageRocket\GoCuotas\Model\ConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">GoCuotasValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">GoCuotasValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">GoCuotasCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="GoCuotasCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="refund" xsi:type="string">MageRocket\GoCuotas\Gateway\Command\Refund</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="GoCuotasValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="currency" xsi:type="string">MageRocket\GoCuotas\Gateway\Validator\CurrencyValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="GoCuotasConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">MageRocket\GoCuotas\Model\ConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="GoCuotasLogger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="info" xsi:type="object">MageRocket\GoCuotas\Logger\Handler\CustomHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="GoCuotasValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">GoCuotasConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="GoCuotasConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">GoCuotasConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- WebAPI -->
+    <preference for="MageRocket\GoCuotas\Api\WebhookInterface" type="MageRocket\GoCuotas\Model\Api\Webhook"/>
+
+    <!-- Transaction -->
+    <preference for="MageRocket\GoCuotas\Api\TransactionRepositoryInterface" type="MageRocket\GoCuotas\Model\TransactionRepository"/>
+    <preference for="MageRocket\GoCuotas\Api\Data\TransactionInterface" type="MageRocket\GoCuotas\Model\Transaction"/>
+    <preference for="MageRocket\GoCuotas\Api\Data\TransactionSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+
+    <!-- Token -->
+    <preference for="MageRocket\GoCuotas\Api\TokenRepositoryInterface" type="MageRocket\GoCuotas\Model\TokenRepository"/>
+    <preference for="MageRocket\GoCuotas\Api\Data\TokenInterface" type="MageRocket\GoCuotas\Model\Token"/>
+    <preference for="MageRocket\GoCuotas\Api\Data\TokenSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+
+    <!-- Session Proxy -->
+    <type name="MageRocket\GoCuotas\Controller\Order\Create">
+        <arguments>
+            <argument name="session" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="MageRocket\GoCuotas\Controller\Order\Callback">
+        <arguments>
+            <argument name="session" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="MageRocket\GoCuotas\Block\Onepage\Failure">
+        <arguments>
+            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="MageRocket\GoCuotas\Block\Onepage\Success">
+        <arguments>
+            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
+        </arguments>
+    </type>
+
+    <!-- Email Sender -->
+    <type name="Magento\Sales\Model\Order\Email\Sender\OrderSender">
+        <plugin name="gocuotas_order_email_sending" type="MageRocket\GoCuotas\Plugin\Order\EmailOrderSender"/>
+    </type>
+</config>

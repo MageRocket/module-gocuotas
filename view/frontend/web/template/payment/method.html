@@ -1,0 +1,63 @@
+<!--
+  @author MageRocket
+  @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+  @link https://magerocket.com/
+  -->
+
+<div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+    <div class="payment-method-title field choice" style="display:flex">
+        <input type="radio" name="payment[method]" class="radio"
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()">
+        <div id="gocuotas-payment-logo" data-bind="click: selectPaymentMethod">
+            <!-- GoCuotas Logo -->
+            <img data-bind="click: selectPaymentMethod, attr: {alt: 'GoCuotas', src: getLogo()}"/>
+            <!-- GoCuotas Title -->
+            <span data-bind="text: getDescription()"></span>
+        </div>
+    </div>
+
+    <!-- ko if: getShowCheckoutBanner() && (getCode() != isChecked()) -->
+        <div id="gocuotas-payment-banner">
+            <!-- GoCuotas Banner -->
+            <img data-bind="click: selectPaymentMethod, attr: {alt: 'GoCuotas', src: getBanner()}" class="payment-banner-checkout"/>
+        </div>
+    <!--/ko-->
+
+    <div class="payment-method-content">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+
+        <!-- ko if: getShowCheckoutBanner() -->
+        <div id="gocuotas-payment-banner">
+            <!-- GoCuotas Banner Payment Content -->
+            <img data-bind="click: selectPaymentMethod, attr: {alt: 'GoCuotas', src: getBanner()}" class="payment-banner-checkout"/>
+        </div>
+        <!--/ko-->
+
+        <div class="checkout-agreements-block" data-bind="css: {'_active': (getCode() == isChecked())}">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+
+        <div class="payment-method-billing-address">
+            <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+
+        <div class="redirect-info">
+            <img data-bind="attr: {alt: 'GoCuotas', src: getInstructionIcon()}" class="img-fluid"/>
+            <p data-bind="text: getInstructions()"></p>
+        </div>
+
+        <div class="actions-toolbar payment-btn">
+            <div class="primary">
+                <button class="btn-goCuotas" type="submit" data-bind="click: placeOrder, attr: {title: $t('Continue')}">
+                    <span data-bind="i18n: 'Continue'"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

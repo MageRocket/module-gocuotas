@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!--
+  ~ @author MageRocket
+  ~ @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+  ~ @link https://magerocket.com/
+  -->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <gocuotas>
+                <mode>0</mode>
+                <debug>0</debug>
+                <active>0</active>
+                <can_edit>0</can_edit>
+                <can_void>0</can_void>
+                <model>GoCuotas</model>
+                <title>Go Cuotas</title>
+                <can_order>0</can_order>
+                <sort_order>0</sort_order>
+                <can_refund>1</can_refund>
+                <is_offline>0</is_offline>
+                <is_gateway>0</is_gateway>
+                <can_capture>0</can_capture>
+                <can_authorize>0</can_authorize>
+                <order_status>pending</order_status>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>1</can_use_internal>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <description>hasta 4 cuotas con tu tarjeta de débito</description>
+                <production>
+                    <email backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                    <password backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                </production>
+                <sandbox>
+                    <email backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                    <password backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                </sandbox>
+                <secret backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <refund>
+                    <enable>0</enable>
+                    <maximum_days_refund>30</maximum_days_refund>
+                </refund>
+                <widget>
+                    <installments>3</installments>
+                    <pdp_installments_widget>1</pdp_installments_widget>
+                    <pdp_installments_message><![CDATA[Hasta <b>%1</b> cuotas SIN interés de <b>%2</b> con <b>Tarjeta de DÉBITO</b>]]></pdp_installments_message>
+                </widget>
+                <checkout>
+                    <show_payment_banner>1</show_payment_banner>
+                    <modal_message>Se abrirá un modal para que puedas realizar el pago.</modal_message>
+                    <redirect_message>Serás redirigido al sitio de Go Cuotas para completar el pago.</redirect_message>
+                </checkout>
+                <order>
+                    <status_approved>processing</status_approved>
+                    <status_rejected>canceled</status_rejected>
+                </order>
+            </gocuotas>
+        </payment>
+    </default>
+</config>

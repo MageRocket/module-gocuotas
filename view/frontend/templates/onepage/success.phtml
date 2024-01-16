@@ -1,0 +1,33 @@
+<?php
+/**
+ * @author MageRocket
+ * @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+ * @link https://magerocket.com/
+ */
+
+/** @var $block \MageRocket\GoCuotas\Block\Onepage\Success */
+/** @var $escaper \Magento\Framework\Escaper */
+$order = $block->getOrder();
+$payment = $order->getPayment();
+$paymentAdditionalInformation = $payment->getAdditionalInformation() ?: [];
+?>
+<?php if ($block->isPaymentMethodGoCuotas()): ?>
+    <div class="gocuotas-payment-information">
+        <div id="go-logo">
+            <img src="<?php echo $escaper->escapeUrl($block->getLogo()) ?>" alt="Go Cuotas">
+            <h3><?php echo __('Your payment was processed successfully');?></h3>
+        </div>
+        <div class="payment-information">
+            <p></p>
+            <?php if (isset($paymentAdditionalInformation['id'])): ?>
+                <p><?php echo __('Transaction ID: <b>%1</b>', $paymentAdditionalInformation['id']);?></p>
+            <?php endif;?>
+            <?php if (isset($paymentAdditionalInformation['status'])): ?>
+                <p><?php echo __('Payment Status: <b>%1</b>', ucfirst($paymentAdditionalInformation['status']));?></p>
+            <?php endif;?>
+            <?php if (isset($paymentAdditionalInformation['installments'])): ?>
+                <p><?php echo __('Installments: <b>%1</b>', $paymentAdditionalInformation['installments']);?></p>
+            <?php endif;?>
+        </div>
+    </div>
+<?php endif ?>

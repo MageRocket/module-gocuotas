@@ -1,0 +1,24 @@
+<?php
+/**
+ * @author MageRocket
+ * @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+ * @link https://magerocket.com/
+ */
+
+/** @var $block \Magento\Framework\View\Element\Template */
+/** @var $viewModel \MageRocket\GoCuotas\ViewModel\WidgetPDP */
+
+$viewModel = $block->getViewModel();
+$storeId = $block->getStoreId();
+$product = $block->getProduct();
+$goCuotasWidget = $viewModel->getPDPWidget($product, $storeId);
+$goCuotasLogo = $viewModel->getGoCuotasLogo($storeId);
+?>
+<div id="gocuotas-widget">
+    <div class="gocuotas-widget-logo">
+        <img src="<?php echo $goCuotasLogo;?>" alt="Go Cuotas"/>
+    </div>
+    <div class="gocuotas-widget-text">
+        <p><?php echo $goCuotasWidget;?></p>
+    </div>
+</div>

@@ -1,0 +1,48 @@
+/**
+ * @author MageRocket
+ * @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+ * @link https://magerocket.com/
+ */
+@import 'module/_variables';
+& when (@media-common = true) {
+  .gocuotas-top-section > .entry-edit-head.admin__collapsible-block {
+    border-bottom: 0 !important;
+  }
+
+  .gocuotas-top-section.active > .entry-edit-head.admin__collapsible-block {
+    border-bottom: 1px solid #ccc !important;
+  }
+
+  .gocuotas-top-section > .admin__collapsible-block > a {
+    & span.gocuotas-brand {
+      font-size: 0;
+      display: inline-block;
+      width: 125px;
+      height: 45px;
+      background: @magerocket__gocuotas__logo;
+      vertical-align: middle;
+    }
+  }
+
+  // Payment Section
+  .gocuotas-section .heading {
+    background: @magerocket__gocuotas__payment__logo;
+    padding-left: 12rem;
+    span {
+      font-weight: 700;
+    }
+    .headheading-introing {
+      font-weight: normal !important;
+    }
+  }
+
+  .gocuotas-section .button-container {
+    float: right;
+  }
+
+  .gocuotas-section .config-alt {}
+
+  .donotchange{
+    color: @magerocket__warning__color;
+  }
+}

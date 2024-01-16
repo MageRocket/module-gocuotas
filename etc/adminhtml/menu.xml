@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--
+  ~ @author MageRocket
+  ~ @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+  ~ @link https://magerocket.com/
+  -->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="MageRocket_GoCuotas::menu" title="Go Cuotas" module="MageRocket_GoCuotas" sortOrder="5" resource="MageRocket_GoCuotas::menu" parent="MageRocket_Core::menu"/>
+        <add id="MageRocket_GoCuotas::config" title="Configuration" module="MageRocket_GoCuotas" sortOrder="10" parent="MageRocket_GoCuotas::menu" action="admin/system_config/edit/section/payment" resource="MageRocket_GoCuotas::menu"/>
+    </menu>
+</config>

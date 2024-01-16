@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+  ~ @author MageRocket
+  ~ @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+  ~ @link https://magerocket.com/
+  -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="magerocket_gocuotas_jobs">
+        <job name="gocuotas_order_cancel" instance="MageRocket\GoCuotas\Cron\CancelOrder" method="cancelPending">
+            <schedule>*/5 * * * *</schedule>
+        </job>
+    </group>
+</config>

@@ -1,0 +1,37 @@
+{
+  "name": "magerocket/module-gocuotas",
+  "version": "1.0.0",
+  "description": "Module Go Cuotas Payment for Magento 2",
+  "homepage": "https://magerocket.com/gocuotas",
+  "type": "magento2-module",
+  "require": {
+    "magento/framework": ">=101",
+    "magerocket/module-core": "^1.0",
+    "guzzlehttp/guzzle": "^6.0 || ^7.0"
+  },
+  "authors": [
+    {
+      "name": "MageRocket",
+      "email": "team@magerocket.com"
+    }
+  ],
+  "keywords": [
+    "magento 2",
+    "payment method",
+    "magento 2 extension"
+  ],
+  "license": [
+    "MIT"
+  ],
+  "autoload": {
+    "files": [
+      "registration.php"
+    ],
+    "psr-4": {
+      "MageRocket\\GoCuotas\\": ""
+    }
+  },
+  "extra": {
+    "user_guide": "https://docs.magerocket.com/guides/go-cuotas"
+  }
+}
