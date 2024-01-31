@@ -116,7 +116,7 @@ class Callback implements ActionInterface
 
                 // Get Token
                 $callbackToken = $this->request->getParam('token');
-                if (is_null($callbackToken)) {
+                if ($callbackToken === null) {
                     throw new Exception(__("The order #{$order->getIncrementId()} missing token callback"));
                 }
 

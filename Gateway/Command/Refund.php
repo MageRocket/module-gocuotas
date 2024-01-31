@@ -148,7 +148,7 @@ class Refund implements CommandInterface
     /**
      * Get RefundAdditionalInformation
      *
-     * @param $refundData
+     * @param array|string $refundData
      * @return string
      */
     private function getRefundAdditionalInformation($refundData)

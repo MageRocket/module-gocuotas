@@ -8,6 +8,8 @@
 namespace MageRocket\GoCuotas\Model;
 
 use Magento\Framework\Serialize\SerializerInterface as Json;
+use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MageRocket\GoCuotas\Api\Data\TokenInterface;
 use MageRocket\GoCuotas\Api\Data\TransactionInterface;
 use MageRocket\GoCuotas\Api\TokenRepositoryInterface;
@@ -32,6 +34,7 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\ResourceModel\Order\Payment as PaymentResourceModel;
 use Magento\Sales\Model\Order\Email\Sender\OrderSenderFactory;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSenderFactory;
+use Magento\Framework\FlagManager;
 
 class GoCuotas
 {
@@ -137,10 +140,16 @@ class GoCuotas
     protected InvoiceSenderFactory $invoiceSenderFactory;
 
     /**
+     * @var FlagManager $flagManager
+     */
+    protected FlagManager $flagManager;
+
+    /**
      * @param Data $helper
      * @param DateTime $dateTime
      * @param Json $jsonSerializer
      * @param Webservice $webservice
+     * @param FlagManager $flagManager
      * @param TokenFactory $tokenFactory
      * @param TimezoneInterface $timezone
      * @param TokenCollection $tokenCollection
@@ -162,6 +171,7 @@ class GoCuotas
         DateTime $dateTime,
         Json $jsonSerializer,
         Webservice $webservice,
+        FlagManager $flagManager,
         TokenFactory $tokenFactory,
         TimezoneInterface $timezone,
         TokenCollection $tokenCollection,
@@ -182,6 +192,7 @@ class GoCuotas
         $this->timezone = $timezone;
         $this->dateTime = $dateTime;
         $this->webservice = $webservice;
+        $this->flagManager = $flagManager;
         $this->tokenFactory = $tokenFactory;
         $this->jsonSerializer = $jsonSerializer;
         $this->orderRepository = $orderRepository;
@@ -211,7 +222,7 @@ class GoCuotas
     {
         $storeId = $order->getStoreId();
         $accessToken = $this->getAccessToken($storeId);
-        if (is_null($accessToken)) {
+        if ($accessToken === null) {
             throw new Exception(__("An error occurred while validating/generating token"));
         }
         $paymentData = $this->prepareOrderData($order);
@@ -248,7 +259,7 @@ class GoCuotas
     {
         $storeId = $order->getStoreId();
         $accessToken = $this->getAccessToken($storeId);
-        if (is_null($accessToken)) {
+        if ($accessToken === null) {
             throw new Exception(__("An error occurred while validating/generating token"));
         }
 
@@ -260,7 +271,7 @@ class GoCuotas
 
         // Refund Data
         $refundData = [];
-        if (!is_null($amount)) {
+        if ($amount !== null) {
             // Convert amount in cents
             $refundData['amount_in_cents'] = round(($amount * 100));
         }
@@ -320,7 +331,7 @@ class GoCuotas
     {
         try {
             $transaction = $this->transactionRepository->getByOrderIncrementId($externalReference);
-            if (is_null($transaction)) {
+            if ($transaction === null) {
                 return null;
             }
             return $transaction;
@@ -338,7 +349,7 @@ class GoCuotas
     public function getOrder($orderId)
     {
         $orderData = $this->orderRepository->get($orderId);
-        if (is_null($orderData)) {
+        if ($orderData === null) {
             return null;
         }
         return $orderData;
@@ -426,7 +437,7 @@ class GoCuotas
     {
         try {
             $goCuotasTransaction = $this->transactionRepository->getByOrderId($orderId);
-            if (is_null($goCuotasTransaction->getTransactionId()) && !is_null($transactionId)) {
+            if ($goCuotasTransaction->getTransactionId() === null && $transactionId !== null) {
                 $goCuotasTransaction->setTransactionId($transactionId);
             }
             $goCuotasTransaction->setStatus($status);
@@ -470,7 +481,7 @@ class GoCuotas
     }
 
     /**
-     * Delete AllTokens
+     * Delete All Tokens
      *
      * @param int|null $storeId
      * @return void
@@ -478,24 +489,33 @@ class GoCuotas
     public function deleteAllTokens($storeId = null)
     {
         $tokenCollection = $this->tokenCollection;
-        if (!is_null($storeId)) {
+        if ($storeId !== null) {
             $tokenCollection->addFieldToFilter(TokenInterface::STORE_ID, $storeId);
         }
         // Delete tokens
         foreach ($tokenCollection as $token) {
             try {
                 $this->tokenRepositoryInterface->delete($token);
+                // Invalidate Credential Validation by Store
+                if ($storeId !== null) {
+                    $this->credentialValidation($storeId);
+                }
             } catch (\Exception $e) {
                 $this->helper->log("Go Cuotas Delete Token - ERROR:" . $e->getMessage());
             }
+        }
+
+        // Invalidate All credentials validation
+        if ($storeId === null) {
+            $this->flagManager->saveFlag(Data::GOCUOTAS_CREDENTIALS_FLAG, $this->serializeData([]));
         }
     }
 
     /**
      * Generate Transaction
      *
-     * @param $payment
-     * @param $invoice
+     * @param OrderPaymentInterface $payment
+     * @param InvoiceInterface $invoice
      * @param string $transactionId
      * @return mixed
      */
@@ -577,17 +597,20 @@ class GoCuotas
     /**
      * Get Access Token
      *
+     * @param int|null $storeId
      * @return void|null
      */
     private function getAccessToken($storeId = null)
     {
         $tokenCollection = $this->tokenCollection;
-        if (!is_null($storeId)) {
+        if ($storeId !== null) {
             $tokenCollection->addFieldToFilter(TokenInterface::STORE_ID, $storeId);
         }
         $tokenData = $tokenCollection->getFirstItem();
-        if (is_null($tokenData->getId()) || !$this->validateToken($tokenData)) {
+        if ($tokenData->getId() === null || !$this->validateToken($tokenData)) {
             if ($tokenData->getId()) {
+                // Invalidate Credential
+                $this->credentialValidation($storeId);
                 try {
                     $this->tokenRepositoryInterface->delete($tokenData);
                     $this->helper->log("Go Cuotas Expired Token:" . $tokenData->getToken());
@@ -597,6 +620,12 @@ class GoCuotas
             }
             $tokenData = $this->generateAccessToken($storeId);
         }
+        // Update Credential Flag
+        $validation = false;
+        if ($tokenData !== null) {
+            $validation = true;
+        }
+        $this->credentialValidation($storeId, $validation);
         return $tokenData->getToken();
     }
 
@@ -610,7 +639,7 @@ class GoCuotas
     {
         $email = $this->helper->getEmail($storeId);
         $password  = $this->helper->getPassword($storeId);
-        if (empty($email) or empty($password)) {
+        if (empty($email) || empty($password)) {
             $this->helper->log("Missing Email / Password Credentials");
             return null;
         }
@@ -649,6 +678,8 @@ class GoCuotas
                 ->setExpirationAt($tokenExpiration)
                 ->setToken($responseBody['token']);
             $this->tokenRepositoryInterface->save($tokenModel);
+            // Update Flag
+            $this->credentialValidation($storeId, true);
             // Log Debug
             $this->helper->logDebug('Create Token Payload: ' . $this->serializeData($requestData));
             $this->helper->logDebug('Create Token Response: ' . $this->serializeData($responseBody ?? []));
@@ -700,7 +731,7 @@ class GoCuotas
         return [
             'order_reference_id' => $order->getIncrementId(),
             'email' => $order->getCustomerEmail(),
-            'phone_number' => $order->getShippingAddress()->getTelephone() ?: '',
+            'phone_number' => $order->getBillingAddress()->getTelephone() ?: '',
             'amount_in_cents' => round(($order->getGrandTotal() * 100), 2),
             'url_success' => $successURL,
             'url_failure' => $failureURL,
@@ -738,9 +769,29 @@ class GoCuotas
     }
 
     /**
+     * Save credential Validation
+     *
+     * @param int|null $storeId
+     * @param bool $valid
+     */
+    private function credentialValidation($storeId, bool $valid = false)
+    {
+        // Get Current Config
+        $storeId = $storeId ?: 0;
+        $currentData = $this->flagManager->getFlagData(Data::GOCUOTAS_CREDENTIALS_FLAG) ?: [];
+        if (!is_array($currentData)) {
+            $currentData = $this->unserializeData($currentData);
+        }
+        // Update
+        $currentData["store_$storeId"] = $valid;
+        // Save
+        $this->flagManager->saveFlag(Data::GOCUOTAS_CREDENTIALS_FLAG, $this->serializeData($currentData));
+    }
+
+    /**
      * Serialize Data
      *
-     * @param $data
+     * @param array|string $data
      * @return bool|string
      */
     private function serializeData($data)
@@ -751,7 +802,7 @@ class GoCuotas
     /**
      * Unserialize Data
      *
-     * @param $data
+     * @param array|string $data
      * @return bool|string
      */
     private function unserializeData($data)

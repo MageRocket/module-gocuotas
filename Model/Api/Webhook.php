@@ -67,13 +67,13 @@ class Webhook implements WebhookInterface
     ): array {
         // Get Transaction
         $transaction = $this->goCuotas->getTransactionByExternalReference($order_reference_id);
-        if (is_null($transaction)) {
+        if ($transaction === null) {
             throw new \Magento\Framework\Webapi\Exception(__('The requested transaction does not exist'));
         }
 
         // Get Order Data
         $order = $this->goCuotas->getOrder($transaction->getOrderId());
-        if (is_null($order)) {
+        if ($order === null) {
             throw new \Magento\Framework\Webapi\Exception(__('The requested order does not exist'));
         }
 
@@ -106,7 +106,8 @@ class Webhook implements WebhookInterface
             'id' => $order_id,
             'status' => $status,
             'installments' => $number_of_installments,
-            'external_reference' => $order_reference_id
+            'external_reference' => $order_reference_id,
+            'method' => $this->helper->getPaymentMode($order->getStoreId()) ? 'Modal' : 'Redirect'
         ];
         switch (strtolower($status)) {
             case 'approved':

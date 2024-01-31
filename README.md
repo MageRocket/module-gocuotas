@@ -35,9 +35,6 @@ bin/magento setup:upgrade
 bin/magento module:uninstall MageRocket_GoCuotas
 ```
 
-### Demo
-[![MageRocket](https://magerocket.com/assets/btnStorefront.png "MageRocket - Storefront")](https://demo.magerocket.com)
-
 ## Author
 
 [<img alt="MageRocket" src="https://magerocket.com/assets/logo.png" width="250"/>](https://magerocket.com)

@@ -72,7 +72,7 @@ class AbstractWidget
     /**
      * Get InstallmentsAmount
      *
-     * @param $amount
+     * @param string|float $amount
      * @param int|null $storeId
      * @return float|string
      */

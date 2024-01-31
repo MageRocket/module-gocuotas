@@ -30,9 +30,9 @@ class Create implements ActionInterface
     protected Session $session;
 
     /**
-     * @var GoCuotas $goCuotas
+     * @var GoCuotas $gocuotas
      */
-    protected GoCuotas $goCuotas;
+    protected GoCuotas $gocuotas;
 
     /**
      * @var JsonFactory $jsonFactory
@@ -44,18 +44,18 @@ class Create implements ActionInterface
      *
      * @param Data $helper
      * @param Session $session
-     * @param GoCuotas $goCuotas
+     * @param GoCuotas $gocuotas
      * @param JsonFactory $jsonFactory
      */
     public function __construct(
         Data $helper,
         Session $session,
-        GoCuotas $goCuotas,
+        GoCuotas $gocuotas,
         JsonFactory $jsonFactory
     ) {
         $this->helper = $helper;
         $this->session = $session;
-        $this->goCuotas = $goCuotas;
+        $this->gocuotas = $gocuotas;
         $this->jsonFactory = $jsonFactory;
     }
 
@@ -71,8 +71,8 @@ class Create implements ActionInterface
         $url = $this->helper->getCallBackUrl();
         $paymentJson = ['error' => true, 'failure_url' => $url];
         try {
-            $response = $this->goCuotas->createTransaction($order);
-            $this->goCuotas->saveTransaction($order);
+            $response = $this->gocuotas->createTransaction($order);
+            $this->gocuotas->saveTransaction($order);
             $url = $this->replaceURL($response['url_init']);
             // Generate Token Cancel
             $tokenCancel = $this->helper->generateToken($order, 'cancel');
@@ -89,7 +89,7 @@ class Create implements ActionInterface
     /**
      * ReplaceURL
      *
-     * Replace GoCuotas URL
+     * Replace Go Cuotas URL
      *
      * @param string $url
      * @return string

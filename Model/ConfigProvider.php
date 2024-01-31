@@ -14,7 +14,7 @@ use Magento\Store\Model\StoreManagerInterface;
 
 class ConfigProvider implements ConfigProviderInterface
 {
-    const CODE = 'gocuotas';
+    public const CODE = 'gocuotas';
 
     /**
      * @var StoreManagerInterface $storeManager

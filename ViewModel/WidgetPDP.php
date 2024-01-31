@@ -8,6 +8,7 @@
 
 namespace MageRocket\GoCuotas\ViewModel;
 
+use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Framework\Phrase;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 
@@ -16,7 +17,7 @@ class WidgetPDP extends AbstractWidget implements ArgumentInterface
     /**
      * Get PDPWidget
      *
-     * @param $product
+     * @param ProductInterface $product
      * @param int|null $storeId
      * @return Phrase
      */

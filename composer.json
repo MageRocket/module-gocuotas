@@ -1,6 +1,6 @@
 {
   "name": "magerocket/module-gocuotas",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Module Go Cuotas Payment for Magento 2",
   "homepage": "https://magerocket.com/gocuotas",
   "type": "magento2-module",

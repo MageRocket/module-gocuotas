@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
 <!--
-  ~ @author MageRocket
-  ~ @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
-  ~ @link https://magerocket.com/
+  @author MageRocket
+  @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+  @link https://magerocket.com/
   -->
 
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceBlock name="page.main.title">
             <action method="setPageTitle">
@@ -13,7 +14,10 @@
             </action>
         </referenceBlock>
         <referenceContainer name="content">
-            <block class="MageRocket\GoCuotas\Block\Onepage\Failure" name="checkout.failure" template="MageRocket_GoCuotas::onepage/failure.phtml"/>
+            <block name="checkout.failure"
+                   ifconfig="payment/gocuotas/active"
+                   class="MageRocket\GoCuotas\Block\Onepage\Failure"
+                   template="MageRocket_GoCuotas::onepage/failure.phtml"/>
         </referenceContainer>
     </body>
 </page>

@@ -1,16 +1,18 @@
 <?xml version="1.0"?>
 <!--
-  ~ @author MageRocket
-  ~ @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
-  ~ @link https://magerocket.com/
+  @author MageRocket
+  @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+  @link https://magerocket.com/
   -->
 
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
 <body>
     <referenceContainer name="order.success.additional.info">
-        <block class="MageRocket\GoCuotas\Block\Onepage\Success" name="gocuotas.additional.info"
-               template="MageRocket_GoCuotas::onepage/success.phtml" cacheable="false">
+        <block name="gocuotas.additional.info" cacheable="false"
+               ifconfig="payment/gocuotas/active"
+               class="MageRocket\GoCuotas\Block\Onepage\Success"
+               template="MageRocket_GoCuotas::onepage/success.phtml">
         </block>
     </referenceContainer>
 </body>

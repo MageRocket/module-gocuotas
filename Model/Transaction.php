@@ -36,7 +36,7 @@ class Transaction extends AbstractModel implements TransactionInterface
     /**
      * Set TransactionId
      *
-     * @param $transactionId
+     * @param int|string $transactionId
      * @return TransactionInterface|Transaction
      */
     public function setTransactionId($transactionId)
@@ -96,6 +96,7 @@ class Transaction extends AbstractModel implements TransactionInterface
 
     /**
      * Set CreatedAt
+     *
      * @param string $createdAt
      * @return Transaction|mixed
      */

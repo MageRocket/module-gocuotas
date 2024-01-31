@@ -1,20 +1,20 @@
 <?xml version="1.0"?>
 <!--
-  ~ @author MageRocket
-  ~ @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
-  ~ @link https://magerocket.com/
+  @author MageRocket
+  @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+  @link https://magerocket.com/
   -->
 
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <!-- Product Simple -->
         <referenceContainer name="product.info.form.content">
-            <block
-                class="Magento\Catalog\Block\Product\View"
-                name="gocuotas-widget"
-                template="MageRocket_GoCuotas::widget/product.phtml"
-                ifconfig="payment/gocuotas/widget/pdp_installments_widget"
-                after="product.info.addtocart">
+            <block name="gocuotas-widget"
+                    class="Magento\Catalog\Block\Product\View"
+                    template="MageRocket_GoCuotas::widget/product.phtml"
+                    ifconfig="payment/gocuotas/widget/pdp_installments_widget"
+                    after="product.info.addtocart">
                 <arguments>
                     <argument name="view_model" xsi:type="object">MageRocket\GoCuotas\ViewModel\WidgetPDP</argument>
                 </arguments>
@@ -23,8 +23,7 @@
 
         <!-- Product Configurable -->
         <referenceBlock name="product.info.options.wrapper.bottom">
-            <block
-                    name="gocuotas-widget-configurable"
+            <block name="gocuotas-widget-configurable"
                     class="Magento\Catalog\Block\Product\View"
                     template="MageRocket_GoCuotas::widget/product.phtml"
                     ifconfig="payment/gocuotas/widget/pdp_installments_widget"

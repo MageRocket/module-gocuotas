@@ -5,42 +5,44 @@
  * @link https://magerocket.com/
  */
 
-/** @var $block Failure */
-/** @var $escaper Escaper */
-
-use MageRocket\GoCuotas\Block\Onepage\Failure;
-use Magento\Framework\Escaper;
-
+/** @var $block MageRocket\GoCuotas\Block\Onepage\Failure */
+/** @var $escaper Magento\Framework\Escaper */
 $order = $block->getOrder();
 ?>
 <?php if ($block->isPaymentMethodGoCuotas()): ?>
     <div class="gocuotas-payment-information">
         <div id="go-logo">
-            <img src="<?php echo $escaper->escapeUrl($block->getLogo()) ?>" alt="Go Cuotas">
+            <img src="<?=$escaper->escapeUrl($block->getLogo());?>" alt="Go Cuotas">
         </div>
-        <h2><strong><?php echo $escaper->escapeHtml((__("Transaction rejected."))) ?></strong></h2>
+        <h2><strong><?=$escaper->escapeHtml(__("Transaction rejected."));?></strong></h2>
         <?php if ($error = $block->getErrorMessage()):?>
-            <p><strong><?php echo $block->escapeHtml($error) ?></strong></p>
+            <p><strong><?=$block->escapeHtml($error) ?></strong></p>
         <?php else: ?>
-            <p><?php echo $escaper->escapeHtml((__("There was an error processing your payment. Don't worry, no charge was made to your card."))) ?></p>
+            <p><?=$escaper->escapeHtml(__(
+                "There was an error processing your payment. Don't worry, no charge was made to your card."
+            ));?></p>
         <?php endif ?>
-        <a class="btn-goCuotas" href="<?php echo $escaper->escapeUrl($block->getUrl('gocuotas/order/retry', ['order_id' => $order->getId()])) ?>">
-            <span><?php echo /* @escapeNotVerified */ __('Retry payment') ?></span>
+        <a class="btn-gocuotas"
+           href="<?=$escaper->escapeUrl($block->getUrl('gocuotas/order/retry', ['order_id' => $order->getId()]));?>">
+            <span><?=$escaper->escapeHtml(__('Retry payment'));?></span>
         </a>
     </div>
 <?php else: ?>
     <?php if ($block->getRealOrderId()):?>
-        <?php $order = $block->getOrderData() ?>
-        <p><?php echo $block->escapeHtml(__('Order #') . $block->getRealOrderId()) ?></p>
+        <?php $order = $block->getOrderData();?>
+        <p><?=$block->escapeHtml(__('Order #') . $block->getRealOrderId());?></p>
     <?php endif ?>
 
     <?php if ($error = $block->getErrorMessage()):?>
-        <p><strong><?php echo $block->escapeHtml($error) ?></strong></p>
+        <p><strong><?=$block->escapeHtml($error);?></strong></p>
     <?php endif ?>
 
     <p>
-        <?php echo $block->escapeHtml(
-            __('Click <a href="%1">here</a> to continue shopping.', $block->escapeUrl($block->getContinueShoppingUrl())),
+        <?=$block->escapeHtml(
+            __(
+                'Click <a href="%1">here</a> to continue shopping.',
+                $block->escapeUrl($block->getContinueShoppingUrl())
+            ),
             ['a']
         ) ?>
     </p>

@@ -127,7 +127,7 @@ class CancelOrder
     /**
      * Get OrderCollection
      *
-     * @param $status
+     * @param array $status
      * @param string $createdAt
      * @return OrderCollection
      */

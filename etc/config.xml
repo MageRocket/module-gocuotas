@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <!--
-  ~ @author MageRocket
-  ~ @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
-  ~ @link https://magerocket.com/
+  @author MageRocket
+  @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+  @link https://magerocket.com/
   -->
 
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -45,7 +45,9 @@
                 <widget>
                     <installments>3</installments>
                     <pdp_installments_widget>1</pdp_installments_widget>
-                    <pdp_installments_message><![CDATA[Hasta <b>%1</b> cuotas SIN interés de <b>%2</b> con <b>Tarjeta de DÉBITO</b>]]></pdp_installments_message>
+                    <pdp_installments_message>
+                        <![CDATA[Hasta <b>%1</b> cuotas SIN interés de <b>%2</b> con <b>Tarjeta de DÉBITO</b>]]>
+                    </pdp_installments_message>
                 </widget>
                 <checkout>
                     <show_payment_banner>1</show_payment_banner>

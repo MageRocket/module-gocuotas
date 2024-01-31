@@ -162,7 +162,7 @@ define([
                 modalClass: 'gocuotas-modal',
                 buttons: [{
                     text: $.mage.__('Cancel Payment'),
-                    class: 'close-popup btn-goCuotas btn-cancel go-bold',
+                    class: 'close-popup btn-gocuotas btn-cancel go-bold',
                     click: function () {
                         window.location.href = goCuotas_cancel;
                     }

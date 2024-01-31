@@ -5,44 +5,90 @@
  */
 @import 'module/_variables';
 & when (@media-common = true) {
-  .gocuotas-top-section > .entry-edit-head.admin__collapsible-block {
-    border-bottom: 0 !important;
-  }
-
-  .gocuotas-top-section.active > .entry-edit-head.admin__collapsible-block {
-    border-bottom: 1px solid #ccc !important;
-  }
-
-  .gocuotas-top-section > .admin__collapsible-block > a {
-    & span.gocuotas-brand {
-      font-size: 0;
-      display: inline-block;
-      width: 125px;
-      height: 45px;
-      background: @magerocket__gocuotas__logo;
-      vertical-align: middle;
+    .gocuotas-top-section > .entry-edit-head.admin__collapsible-block {
+        border-bottom: 0 !important;
     }
-  }
 
-  // Payment Section
-  .gocuotas-section .heading {
-    background: @magerocket__gocuotas__payment__logo;
-    padding-left: 12rem;
-    span {
-      font-weight: 700;
+    .gocuotas-top-section.active > .entry-edit-head.admin__collapsible-block {
+        border-bottom: 1px solid @magerocket__grey__color !important;
     }
-    .headheading-introing {
-      font-weight: normal !important;
+
+    .gocuotas-top-section > .admin__collapsible-block > a {
+        & span.gocuotas-brand {
+            background: @magerocket__gocuotas__logo;
+            display: inline-block;
+            font-size: 0;
+            height: 45px;
+            vertical-align: middle;
+            width: 125px;
+        }
     }
-  }
 
-  .gocuotas-section .button-container {
-    float: right;
-  }
+    .gocuotas-section .heading {
+        background: @magerocket__gocuotas__payment__logo;
+        padding-left: 12rem;
+        span {
+            font-weight: 700;
+        }
+        .headheading-introing {
+            font-weight: normal !important;
+        }
+    }
 
-  .gocuotas-section .config-alt {}
+    .gocuotas-section .button-container {
+        float: right;
+    }
 
-  .donotchange{
-    color: @magerocket__warning__color;
-  }
+    .donotchange {
+        color: @magerocket__warning__color;
+    }
+
+    .gocuotas-section .config-alt {
+    }
+
+    .gocuotas-section.section-config.active > .admin__collapsible-block .control-value {
+        span {
+            border-radius: 5px;
+            padding: 8px 15px 8px 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+            &:before {
+                font-family: 'Admin Icons';
+                margin-right: 7px;
+            }
+        }
+
+        .success {
+            border: 1px solid @magerocket__credentials__success__color;
+            color: @magerocket__credentials__success__color;
+            &:before {
+                content: '\e62d';
+            }
+        }
+
+        .warning {
+            border: 1px solid @magerocket__credentials__warning__color;
+            color: @magerocket__credentials__warning__color;
+            &:before {
+                content: '\e62e';
+            }
+        }
+
+        .error {
+            border: 1px solid @magerocket__credentials__error__color;
+            color: @magerocket__credentials__error__color;
+            &:before {
+                content: '\e632';
+                font-size: 11px;
+            }
+        }
+
+        .info {
+            border: 1px solid @magerocket__credentials__warning__color;
+            color: @magerocket__credentials__warning__color;
+            &:before {
+                content: '\e623';
+            }
+        }
+    }
 }

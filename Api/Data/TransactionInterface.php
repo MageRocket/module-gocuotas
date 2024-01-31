@@ -9,13 +9,13 @@ namespace MageRocket\GoCuotas\Api\Data;
 
 interface TransactionInterface
 {
-    const ENTITY_ID = 'entity_id';
-    const ORDER_ID = 'order_id';
-    const INCREMENT_ID = 'increment_id';
-    const STATUS = 'status';
-    const CREATED_AT = 'created_at';
-    const EXPIRED_AT = 'expired_at';
-    const TRANSACTION_ID = 'transaction_id';
+    public const ENTITY_ID = 'entity_id';
+    public const ORDER_ID = 'order_id';
+    public const INCREMENT_ID = 'increment_id';
+    public const STATUS = 'status';
+    public const CREATED_AT = 'created_at';
+    public const EXPIRED_AT = 'expired_at';
+    public const TRANSACTION_ID = 'transaction_id';
 
     /**
      * Get transaction_id
@@ -107,4 +107,3 @@ interface TransactionInterface
      */
     public function setIncrementId($incrementId);
 }
-

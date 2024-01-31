@@ -30,10 +30,15 @@
 
         <!-- ko if: getShowCheckoutBanner() -->
         <div id="gocuotas-payment-banner">
-            <!-- GoCuotas Banner Payment Content -->
+            <!-- Go Cuotas Banner Payment Content -->
             <img data-bind="click: selectPaymentMethod, attr: {alt: 'GoCuotas', src: getBanner()}" class="payment-banner-checkout"/>
         </div>
         <!--/ko-->
+
+        <div class="redirect-info">
+            <img data-bind="attr: {alt: 'GoCuotas', src: getInstructionIcon()}" class="img-fluid"/>
+            <p data-bind="text: getInstructions()"></p>
+        </div>
 
         <div class="checkout-agreements-block" data-bind="css: {'_active': (getCode() == isChecked())}">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
@@ -47,14 +52,9 @@
             <!--/ko-->
         </div>
 
-        <div class="redirect-info">
-            <img data-bind="attr: {alt: 'GoCuotas', src: getInstructionIcon()}" class="img-fluid"/>
-            <p data-bind="text: getInstructions()"></p>
-        </div>
-
         <div class="actions-toolbar payment-btn">
             <div class="primary">
-                <button class="btn-goCuotas" type="submit" data-bind="click: placeOrder, attr: {title: $t('Continue')}">
+                <button class="btn-gocuotas" type="submit" data-bind="click: placeOrder, attr: {title: $t('Continue')}">
                     <span data-bind="i18n: 'Continue'"></span>
                 </button>
             </div>

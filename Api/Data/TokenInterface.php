@@ -9,13 +9,10 @@ namespace MageRocket\GoCuotas\Api\Data;
 
 interface TokenInterface
 {
-    const TOKEN_ID = 'entity_id';
-
-    const STORE_ID = 'store_id';
-
-    const EXPIRED_AT = 'expired_at';
-
-    const TOKEN = 'token';
+    public const TOKEN_ID = 'entity_id';
+    public const STORE_ID = 'store_id';
+    public const EXPIRED_AT = 'expired_at';
+    public const TOKEN = 'token';
 
     /**
      * Get TokenId

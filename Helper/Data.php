@@ -7,13 +7,13 @@
 
 namespace MageRocket\GoCuotas\Helper;
 
-use MageRocket\GoCuotas\Logger\Logger;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use MageRocket\GoCuotas\Logger\Logger;
 use MageRocket\GoCuotas\Model\GoCuotas\Endpoints;
 
 class Data
@@ -22,11 +22,12 @@ class Data
     protected const GOCUOTAS_SANDBOX_ENDPOINT = 'https://sandbox.gocuotas.com';
     protected const GOCUOTAS_PAYMENT_XML_PATH = 'payment/gocuotas/%s';
     protected const GOCUOTAS_WEBHOOK_ENDPOINT = 'rest/V1/gocuotas/webhook';
-    const GOCUOTAS_MODAL_ENDPOINT = 'https://api-magento.gocuotas.com';
-    const GOCUOTAS_PAYMENT_PENDING_STATUS = 'undefined';
-    const GOCUOTAS_PAYMENT_EXPIRATION = 30;
-    const GOCUOTAS_TOKEN_EXPIRATION_DAYS = 1;
-    const GOCUOTAS_PAYMENT_METHODS = ['gocuotas' => 'gocuotas_redirect'];
+    public const GOCUOTAS_MODAL_ENDPOINT = 'https://api-magento.gocuotas.com';
+    public const GOCUOTAS_PAYMENT_PENDING_STATUS = 'undefined';
+    public const GOCUOTAS_PAYMENT_EXPIRATION = 30;
+    public const GOCUOTAS_TOKEN_EXPIRATION_DAYS = 1;
+    public const GOCUOTAS_PAYMENT_METHODS = ['gocuotas' => 'gocuotas_redirect'];
+    public const GOCUOTAS_CREDENTIALS_FLAG = 'magerocket_gocuotas_credentials';
 
     /**
      * @var Logger $logger
@@ -76,7 +77,25 @@ class Data
      */
     public function isActive($storeId = null): bool
     {
-        return $this->getConfig('active', $storeId) || false;
+        // Check credentials
+        if ($this->getConfig('active', $storeId)) {
+            return $this->isValidCredentials($storeId);
+        }
+        return false;
+    }
+
+    /**
+     * Get isValidCredentials
+     *
+     * @param int|null $storeId
+     * @return bool
+     */
+    public function isValidCredentials($storeId = null): bool
+    {
+        if (empty($this->getEmail($storeId)) || empty($this->getPassword($storeId))) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -87,7 +106,7 @@ class Data
      */
     public function isDebugEnabled($storeId = null): bool
     {
-        return $this->getConfig('debug', $storeId) || false;
+        return $this->getConfig('debug', $storeId) ?: false;
     }
 
     /**
@@ -109,7 +128,7 @@ class Data
      */
     public function getIntegrationMode($storeId = null): bool
     {
-        return $this->getConfig('mode', $storeId) || false;
+        return $this->getConfig('mode', $storeId) ?: false;
     }
 
     /**
@@ -178,7 +197,7 @@ class Data
      */
     public function getPaymentMode($storeId = null): bool
     {
-        return $this->getConfig('payment_mode', $storeId);
+        return $this->getConfig('payment_mode', $storeId) ?: false;
     }
 
     /**
@@ -189,7 +208,7 @@ class Data
      */
     public function getShowCheckoutBanner($storeId = null): bool
     {
-        return $this->getConfig('checkout/show_payment_banner', $storeId);
+        return $this->getConfig('checkout/show_payment_banner', $storeId) ?: false;
     }
 
     /**
@@ -204,10 +223,11 @@ class Data
     public function getBanner($storeId = null): string
     {
         $bannerGoCuotas = $this->getConfig('checkout/payment_banner', $storeId);
-        if (is_null($bannerGoCuotas)) {
+        if ($bannerGoCuotas === null) {
             return $this->assetRepository->getUrl("MageRocket_GoCuotas::images/banner/bannerGoCuotas.png");
         }
-        return $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . "gocuotas/banner/$bannerGoCuotas";
+        $path = "gocuotas/banner/$bannerGoCuotas";
+        return $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . $path;
     }
 
     /**
@@ -243,7 +263,7 @@ class Data
      */
     public function showInstallmentsWidget($storeId = null): bool
     {
-        return $this->getConfig('widget/pdp_installments_widget', $storeId);
+        return $this->getConfig('widget/pdp_installments_widget', $storeId) ?: false;
     }
 
     /**
@@ -254,7 +274,7 @@ class Data
      */
     public function getWidgetInstallmentsQty($storeId = null): int
     {
-        return $this->getConfig('widget/installments', $storeId);
+        return $this->getConfig('widget/installments', $storeId) ?: 1;
     }
 
     /**
@@ -266,7 +286,8 @@ class Data
      */
     public function getInstallmentsLabel(string $path = 'pdp_installments_message', $storeId = null): string
     {
-        return $this->getConfig("widget/$path", $storeId) ?? __('Up to <b>%1</b> interest-free installments of <b>%2</b>');
+        return $this->getConfig("widget/$path", $storeId) ??
+            __('Up to <b>%1</b> interest-free installments of <b>%2</b>');
     }
 
     /**
@@ -277,7 +298,7 @@ class Data
      */
     public function isRefundEnabled($storeId = null): bool
     {
-        return $this->getConfig('refund/enable', $storeId) ?? false;
+        return $this->getConfig('refund/enable', $storeId) ?: false;
     }
 
     /**
@@ -411,7 +432,10 @@ class Data
      */
     public function generateToken($order, $status = null): string
     {
-        return hash('sha256', $this->getSecret($order->getStoreId()) . $order->getIncrementId() . $order->getCreatedAt() . $status);
+        return hash(
+            'sha256',
+            $this->getSecret($order->getStoreId()) . $order->getIncrementId() . $order->getCreatedAt() . $status
+        );
     }
 
     /**

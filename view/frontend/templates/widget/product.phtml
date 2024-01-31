@@ -7,7 +7,7 @@
 
 /** @var $block \Magento\Framework\View\Element\Template */
 /** @var $viewModel \MageRocket\GoCuotas\ViewModel\WidgetPDP */
-
+/** @var $escaper \Magento\Framework\Escaper */
 $viewModel = $block->getViewModel();
 $storeId = $block->getStoreId();
 $product = $block->getProduct();
@@ -16,9 +16,9 @@ $goCuotasLogo = $viewModel->getGoCuotasLogo($storeId);
 ?>
 <div id="gocuotas-widget">
     <div class="gocuotas-widget-logo">
-        <img src="<?php echo $goCuotasLogo;?>" alt="Go Cuotas"/>
+        <img src="<?=$escaper->escapeUrl($goCuotasLogo) ?>" alt="Go Cuotas"/>
     </div>
     <div class="gocuotas-widget-text">
-        <p><?php echo $goCuotasWidget;?></p>
+        <p><?=$escaper->escapeHtml($goCuotasWidget, ['b','u','strong']);?></p>
     </div>
 </div>

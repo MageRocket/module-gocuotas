@@ -13,7 +13,7 @@ use Magento\Payment\Gateway\Validator\ResultInterface;
 class CurrencyValidator extends AbstractValidator
 {
     // Currencies allowed
-    protected const CURRENCIES = ['ARS','MXN'];
+    protected const CURRENCIES = ['ARS'];
 
     /**
      * Validate
