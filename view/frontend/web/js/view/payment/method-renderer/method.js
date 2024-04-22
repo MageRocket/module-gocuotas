@@ -30,7 +30,7 @@ define([
             active: false
         },
 
-        getCode: function() {
+        getCode: function () {
             return this.code;
         },
 
@@ -116,19 +116,20 @@ define([
          *
          * @param serviceUrl
          */
-        createGoCuotasTransaction: function (serviceUrl){
+        createGoCuotasTransaction: function (serviceUrl) {
             let self = this;
             $.ajax({
                 url: serviceUrl,
                 contentType: 'application/json',
                 type: 'GET'
             }).done(function (response) {
-                if(response.error){
+                if (response.error) {
                     window.location.href = response.failure_url;
                     return false;
                 }
                 // Modal or Redirect?
-                if(self.getPaymentMode()){
+                // Force Redirect Mode on Mobile / Tablet
+                if (self.getPaymentMode() && !self.detectDevice()) {
                     // Modal
                     self.createModal(response);
                 } else {
@@ -174,6 +175,25 @@ define([
             $('#gocuotas-content').modal('openModal');
             // Hide Loader
             fullScreenLoader.stopLoader();
+            // After X minutes, redirect to the cancellation page
+            let paymentTimeOutMinutes = 28;
+            setTimeout(function () {
+                window.location.href = goCuotas_cancel + 'timeout/t';
+            }, paymentTimeOutMinutes * 60 * 1000);
+        },
+
+        /**
+         * Detect Device
+         * @returns {boolean}
+         */
+        detectDevice: function () {
+            var screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+            var breakpoints = {
+                desktop: 1024,
+                tablet: 768,
+                mobile: 0
+            };
+            return screenWidth < breakpoints.desktop;
         }
     });
 });

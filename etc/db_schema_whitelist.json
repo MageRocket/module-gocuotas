@@ -1,0 +1,29 @@
+{
+    "gocuotas_transaction": {
+        "column": {
+            "entity_id": true,
+            "transaction_id": true,
+            "order_id": true,
+            "increment_id": true,
+            "status": true,
+            "created_at": true,
+            "expired_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "GOCUOTAS_TRANSACTION_ORDER_ID": true
+        }
+    },
+    "gocuotas_token": {
+        "column": {
+            "entity_id": true,
+            "store_id": true,
+            "token": true,
+            "expired_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "GOCUOTAS_TOKEN_STORE_ID": true
+        }
+    }
+}

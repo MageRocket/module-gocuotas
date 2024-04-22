@@ -148,9 +148,14 @@ class Callback implements ActionInterface
                     if (!$this->goCuotas->cancelOrder($order, $order->getId(), $additionalData)) {
                         throw new Exception(__('Order could not be canceled.'));
                     }
-                    $this->session->setErrorMessage(__('Go Cuotas Payment canceled by Customer'));
+                    // Timeout cancel?
+                    if ($this->request->getParam('timeout') !== null) {
+                        $this->session->setErrorMessage(__('Waiting time exceeded. Please try again.'));
+                    } else {
+                        $this->session->setErrorMessage(__('Go Cuotas Payment canceled by Customer'));
+                    }
                 } else {
-                    // Desconocido
+                    // Unknown
                     $this->session->setErrorMessage(__('We are waiting for the response from Go Cuotas.'));
                 }
             }

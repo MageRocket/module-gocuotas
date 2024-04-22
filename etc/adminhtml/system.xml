@@ -63,7 +63,10 @@
                        showInWebsite="1" showInStore="1">
                     <label>Payment Method</label>
                     <source_model>MageRocket\GoCuotas\Model\Config\Source\CheckoutModeOption</source_model>
-                    <comment>Allows you to determine the way to make the payment: Redirect / Modal</comment>
+                    <comment>
+                        <![CDATA[<b class='donotchange'>IMPORTANT</b>: On mobile devices, <b>Modal</b> mode will behave like <b>Redirect</b> mode.]]>
+                    </comment>
+                    <tooltip>Allows you to determine the way to make the payment: Redirect / Modal</tooltip>
                 </field>
                 <field id="sort_order" translate="label comment" type="text" sortOrder="55" showInDefault="1"
                        showInWebsite="1" showInStore="1">
@@ -213,14 +216,20 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <comment>Allows extended logs</comment>
                     </field>
-                    <field id="secret" translate="label comment" sortOrder="10" type="obscure" showInDefault="1"
-                           showInWebsite="1" showInStore="1">
+                    <field id="secret" translate="label comment" sortOrder="10" type="obscure" showInDefault="1">
                         <label>Secret</label>
                         <validate>required-entry no-whitespace</validate>
                         <config_path>payment/gocuotas/secret</config_path>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                         <comment>
                             <![CDATA[<b class='donotchange'>DO NOT CHANGE</b>: Used to authenticate Go Cuotas responses. If you change it, the pending payments will be <b>CANCELED</b>]]>
+                        </comment>
+                    </field>
+                    <field id="secret_button" translate="button_label" sortOrder="15" showInDefault="1">
+                        <button_label>Regenerate Secret</button_label>
+                        <frontend_model>MageRocket\GoCuotas\Block\Adminhtml\System\Config\Secret\Button</frontend_model>
+                        <comment>
+                            <![CDATA[<b class='donotchange'>WARNING</b>: This action is irreversible]]>
                         </comment>
                     </field>
                 </group>

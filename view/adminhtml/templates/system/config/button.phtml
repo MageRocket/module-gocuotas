@@ -1,0 +1,21 @@
+<?php
+/**
+ * @author MageRocket
+ * @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+ * @link https://magerocket.com/
+ */
+
+use MageRocket\GoCuotas\Block\Adminhtml\System\Config\Secret\Button;
+use Magento\Framework\Escaper;
+
+/**
+ * @var Button $block
+ * @var $escaper Escaper
+ */
+?>
+<div class="regenerate_secret">
+    <button onclick="window.location.href = '<?= $escaper->escapeUrl($this->getRegenerateUrl()) ?>';" type="button"
+            class="scalable magerocket-button btn-danger" id="<?= /* @noEscape */ $block->getHtmlId() ?>">
+        <span><?= $block->escapeHtml($block->getButtonLabel()) ?></span>
+    </button>
+</div>

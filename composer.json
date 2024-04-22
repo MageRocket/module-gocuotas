@@ -1,7 +1,7 @@
 {
   "name": "magerocket/module-gocuotas",
-  "version": "1.0.1",
-  "description": "Module Go Cuotas Payment for Magento 2",
+  "version": "1.0.2",
+  "description": "Module Go Cuotas Payment for Adobe Commerce / Magento 2 Open Source",
   "homepage": "https://magerocket.com/gocuotas",
   "type": "magento2-module",
   "require": {
@@ -18,7 +18,10 @@
   "keywords": [
     "magento 2",
     "payment method",
-    "magento 2 extension"
+    "magento 2 extension",
+    "adobe commerce",
+    "adobe commerce extension",
+    "adobe commerce cloud"
   ],
   "license": [
     "MIT"
