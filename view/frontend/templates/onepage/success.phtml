@@ -35,9 +35,23 @@ $paymentAdditionalInformation = $payment->getAdditionalInformation() ?: [];
             <?php endif;?>
             <?php if (isset($paymentAdditionalInformation['installments'])): ?>
                 <p><?=$escaper->escapeHtml(
-                    __('Installments: <b>%1</b>', $paymentAdditionalInformation['installments']),
-                    ['b']
-                   );?>
+                        __('Installments: <b>%1</b>', $paymentAdditionalInformation['installments']),
+                        ['b']
+                    );?>
+                </p>
+            <?php endif;?>
+            <?php if (isset($paymentAdditionalInformation['card_number'])): ?>
+                <p><?=$escaper->escapeHtml(
+                        __('Card Number: <b>%1</b>', $paymentAdditionalInformation['card_number']),
+                        ['b']
+                    );?>
+                </p>
+            <?php endif;?>
+            <?php if (isset($paymentAdditionalInformation['card_name'])): ?>
+                <p><?=$escaper->escapeHtml(
+                        __('Card Number: <b>%1</b>', $paymentAdditionalInformation['card_name']),
+                        ['b']
+                    );?>
                 </p>
             <?php endif;?>
         </div>

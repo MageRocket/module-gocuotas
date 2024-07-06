@@ -92,7 +92,7 @@ class Callback implements ActionInterface
             // Check Payment Method
             $goCuotasPaymentMethods = array_keys(Data::GOCUOTAS_PAYMENT_METHODS);
             if (!in_array($order->getPayment()->getMethod(), $goCuotasPaymentMethods)) {
-                throw new Exception(__("The order #{$order->getIncrementId()} was not paid with GoCuotas"));
+                throw new Exception(__("The order #{$order->getIncrementId()} was not paid with Go Cuotas"));
             }
 
             // Get Transaction

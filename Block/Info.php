@@ -20,7 +20,9 @@ class Info extends \Magento\Payment\Block\Info
         ['field' => 'external_reference', 'title' => 'External Reference'],
         ['field' => 'installments', 'title' => 'Installments'],
         ['field' => 'method', 'title' => 'Payment Method'],
-        ['field' => 'status', 'title' => 'Payment Status']
+        ['field' => 'status', 'title' => 'Payment Status'],
+        ['field' => 'card_number', 'title' => 'Card Number'],
+        ['field' => 'card_name', 'title' => 'Card Name']
     ];
 
     /**

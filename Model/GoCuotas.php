@@ -588,6 +588,14 @@ class GoCuotas
                 "Payment Status: <b>%1</b><br>",
                 ucfirst($additionalInformation["status"]) ?? 'N/A'
             );
+            $historyFormatted .= __(
+                "Card Number: <b>%1</b><br>",
+                ucfirst($additionalInformation["card_number"]) ?? 'N/A'
+            );
+            $historyFormatted .= __(
+                "Card Name: <b>%1</b><br>",
+                ucfirst($additionalInformation["card_name"]) ?? 'N/A'
+            );
         } else {
             $historyFormatted .= __("Unknown Payment Information");
         }
@@ -786,6 +794,47 @@ class GoCuotas
         $currentData["store_$storeId"] = $valid;
         // Save
         $this->flagManager->saveFlag(Data::GOCUOTAS_CREDENTIALS_FLAG, $this->serializeData($currentData));
+    }
+
+    /**
+     * Get Go Cuotas Transaction
+     *
+     * @param Order $order
+     * @param string $transactionId
+     * @return bool|string
+     * @throws Exception
+     */
+    public function getGoCuotasTransaction(Order $order, string $transactionId)
+    {
+        $storeId = $order->getStoreId();
+        $accessToken = $this->getAccessToken($storeId);
+        if ($accessToken === null) {
+            throw new Exception(__("An error occurred while validating/generating token"));
+        }
+        $requestData = [];
+        $requestData['headers'] = [
+            "Content-Type" => "application/json",
+            "Authorization" => "Bearer $accessToken",
+        ];
+
+        $endpoint = sprintf(Endpoints::GET_ORDER, $transactionId);
+        $getPaymentEndpoint = $this->helper->buildRequestURL($endpoint, $storeId);
+        $goCuotasPreference = $this->webservice->doRequest($getPaymentEndpoint, $requestData);
+        $responseBody = $this->unserializeData($goCuotasPreference->getBody()->getContents());
+        if ($goCuotasPreference->getStatusCode() > 201) {
+            $this->helper->log("Get Payment Information Payload: " . $this->serializeData($requestData));
+            $this->helper->log("Get Payment Information Response: " . $this->serializeData($responseBody));
+            $extendMsg = $goCuotasPreference->getStatusCode() == '404' ? 'Payment not exist Go Cuotas' : 'Check logs';
+            throw new Exception(
+                __("An error occurred while creating Refund $extendMsg"),
+                $goCuotasPreference->getStatusCode()
+            );
+        }
+
+        // Log Debug
+        $this->helper->logDebug('Get Payment Information Payload: ' . $this->serializeData($requestData));
+        $this->helper->logDebug('Get Payment Information Response: ' . $this->serializeData($responseBody ?? []));
+        return $responseBody;
     }
 
     /**

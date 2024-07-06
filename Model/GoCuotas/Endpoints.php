@@ -16,5 +16,6 @@ class Endpoints
     public const CREATE_PAYMENT = '/checkouts';
     public const CREATE_REFUND = '/orders/%s';
     public const GET_ORDERS = '/orders?delivered_start=%s&delivered_end=%s';
+    public const GET_ORDER = '/orders/%s';
     public const AUTHENTICATION = '/authentication';
 }

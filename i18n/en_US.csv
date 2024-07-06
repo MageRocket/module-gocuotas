@@ -108,3 +108,7 @@
 "<b class='donotchange'>IMPORTANT</b>: On mobile devices, <b>Modal</b> mode will behave like <b>Redirect</b> mode.","<b class='donotchange'>IMPORTANT</b>: On mobile devices, <b>Modal</b> mode will behave like <b>Redirect</b> mode."
 "Go Cuotas: Secret has been regenerated.","Go Cuotas: Secret has been regenerated."
 "Go Cuotas: Error regenerating the secret. Please try again.","Go Cuotas: Error regenerating the secret. Please try again."
+"Card Number","Card Number"
+"Card Name","Card Name"
+"Card Number: <b>%1</b>","Card Number: <b>%1</b>"
+"Card Name: <b>%1</b>","Card Name: <b>%1</b>"

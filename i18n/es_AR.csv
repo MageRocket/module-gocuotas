@@ -108,3 +108,7 @@ Go Cuotas,Go Cuotas
 "<b class='donotchange'>IMPORTANT</b>: On mobile devices, <b>Modal</b> mode will behave like <b>Redirect</b> mode.","<b class='donotchange'>IMPORTANTE</b>: En dispositivos móviles, el modo <b>Modal</b> se comportará como <b>Redirect</b>."
 "Go Cuotas: Secret has been regenerated.","Go Cuotas: Secret regenerado exitosamente."
 "Go Cuotas: Error regenerating the secret. Please try again.","Go Cuotas: Se produjo un error al regenerar el Secret. Intente nuevamente"
+"Card Number","Número de Tarjeta"
+"Card Name","Entidad Bancaria"
+"Card Number: <b>%1</b>","Número de Tarjeta: <b>%1</b>"
+"Card Name: <b>%1</b>","Entidad Bancaria: <b>%1</b>"

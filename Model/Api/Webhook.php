@@ -101,7 +101,7 @@ class Webhook implements WebhookInterface
         }
 
         // Invoice Order
-        $goCuotasOrderId = $order_id;
+        $goCuotasTransactionID = $order_id;
         $additionalData = [
             'id' => $order_id,
             'status' => $status,
@@ -109,15 +109,25 @@ class Webhook implements WebhookInterface
             'external_reference' => $order_reference_id,
             'method' => $this->helper->getPaymentMode($order->getStoreId()) ? 'Modal' : 'Redirect'
         ];
+
+        // Get Transaction Payment Card Data
+        $goCuotasTransaction = $this->goCuotas->getGoCuotasTransaction($order, $goCuotasTransactionID);
+        if ($goCuotasTransaction['payment'] !== null) {
+            $cardData = $goCuotasTransaction['payment']['card'];
+            $additionalData['card_number'] = $cardData['number'] ?: 'N/A';
+            $additionalData['card_name'] = $cardData['name'] ?: 'N/A';
+        }
+
+        // Process Payment
         switch (strtolower($status)) {
             case 'approved':
-                if (!$this->goCuotas->invoiceOrder($order, $goCuotasOrderId, $additionalData)) {
+                if (!$this->goCuotas->invoiceOrder($order, $goCuotasTransactionID, $additionalData)) {
                     throw new \Magento\Framework\Webapi\Exception(__('Order could not be invoiced.'));
                 }
                 $response = ['error' => false, 'status' => 'Order Approved'];
                 break;
             case 'denied':
-                if (!$this->goCuotas->cancelOrder($order, $goCuotasOrderId, $additionalData)) {
+                if (!$this->goCuotas->cancelOrder($order, $goCuotasTransactionID, $additionalData)) {
                     throw new \Magento\Framework\Webapi\Exception(__('Order could not be canceled.'));
                 }
                 $response = ['error' => false, 'status' => 'Order Canceled'];
