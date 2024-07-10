@@ -49,7 +49,7 @@ $paymentAdditionalInformation = $payment->getAdditionalInformation() ?: [];
             <?php endif;?>
             <?php if (isset($paymentAdditionalInformation['card_name'])): ?>
                 <p><?=$escaper->escapeHtml(
-                        __('Card Number: <b>%1</b>', $paymentAdditionalInformation['card_name']),
+                        __('Card Name: <b>%1</b>', $paymentAdditionalInformation['card_name']),
                         ['b']
                     );?>
                 </p>
