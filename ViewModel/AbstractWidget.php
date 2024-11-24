@@ -82,4 +82,15 @@ class AbstractWidget
         $installmentsAmount = ($amount / $maxInstallments);
         return $this->priceHelper->currency($installmentsAmount, true, false);
     }
+
+    /**
+     * isActive
+     *
+     * @param $storeId
+     * @return bool
+     */
+    public function isActive($storeId = null)
+    {
+        return $this->helper->isActive($storeId);
+    }
 }

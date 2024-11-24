@@ -11,6 +11,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Asset\Repository;
+use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use MageRocket\GoCuotas\Logger\Logger;
@@ -424,18 +425,50 @@ class Data
     }
 
     /**
+     * Get CronOrderTimeout
+     *
+     * @param int|null $storeId
+     * @return string
+     */
+    public function getCronOrderTimeout($storeId = null): string
+    {
+        return $this->getConfig('cron/order_timeout', $storeId) ?? 30;
+    }
+
+    /**
      * Generate Token
      *
-     * @param int $order
+     * @param Order $order
      * @param string|null $status
      * @return string
      */
-    public function generateToken($order, $status = null): string
+    public function generateToken(Order $order, $status = null): string
     {
         return hash(
             'sha256',
             $this->getSecret($order->getStoreId()) . $order->getIncrementId() . $order->getCreatedAt() . $status
         );
+    }
+
+    /**
+     * maskSensitiveData
+     *
+     * @param $data
+     * @param int $visibleStart
+     * @param int $visibleEnd
+     * @param string $maskChar
+     * @return string
+     */
+    function maskSensitiveData($data, int $visibleStart = 3, int $visibleEnd = 2, string $maskChar = '*'): string
+    {
+        $length = strlen($data);
+        if ($length <= ($visibleStart + $visibleEnd)) {
+            return $data;
+        }
+        $start = substr($data, 0, $visibleStart);
+        $end = substr($data, -$visibleEnd);
+        $masked = str_repeat($maskChar, $length - ($visibleStart + $visibleEnd));
+        return $start . $masked . $end;
     }
 
     /**

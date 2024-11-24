@@ -8,14 +8,12 @@
 
 namespace MageRocket\GoCuotas\Cron;
 
-use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use MageRocket\GoCuotas\Api\Data\TransactionInterface;
 use MageRocket\GoCuotas\Api\TransactionRepositoryInterface;
 use MageRocket\GoCuotas\Helper\Data;
 use MageRocket\GoCuotas\Model\GoCuotas;
-use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\ResourceModel\Order\Collection as OrderCollection;
 use Magento\Sales\Model\Order;
 
@@ -24,11 +22,6 @@ class CancelOrder
     protected const PENDING = ['pending'];
     protected const PAYMENT_METHOD = ['gocuotas'];
     protected const TRANSACTION_CANCELED = 'canceled';
-
-    /**
-     * @var SearchCriteriaBuilder $searchCriteriaBuilder
-     */
-    protected SearchCriteriaBuilder $searchCriteriaBuilder;
 
     /**
      * @var TransactionRepositoryInterface $transactionRepository
@@ -41,11 +34,6 @@ class CancelOrder
     protected Data $helper;
 
     /**
-     * @var OrderRepositoryInterface $orderRepository
-     */
-    protected OrderRepositoryInterface $orderRepository;
-
-    /**
      * @var GoCuotas $goCuotas
      */
     protected GoCuotas $goCuotas;
@@ -56,70 +44,148 @@ class CancelOrder
     protected TimezoneInterface $timezone;
 
     /**
-     * @var DateTime $dateTime
-     */
-    protected DateTime $dateTime;
-
-    /**
      * @var OrderCollection $orderCollection
      */
     protected OrderCollection $orderCollection;
+
+    /**
+     * @var $cronCancellationTimeout int|string
+     */
+    protected $cronCancellationTimeout;
 
     /**
      * Init Construct
      *
      * @param Data $helper
      * @param GoCuotas $goCuotas
+     * @param TimezoneInterface $timezone
      * @param OrderCollection $orderCollection
      * @param TransactionRepositoryInterface $transactionRepository
      */
     public function __construct(
         Data $helper,
         GoCuotas $goCuotas,
+        TimezoneInterface $timezone,
         OrderCollection $orderCollection,
         TransactionRepositoryInterface $transactionRepository
     ) {
         $this->helper = $helper;
         $this->goCuotas = $goCuotas;
+        $this->timezone = $timezone;
         $this->orderCollection = $orderCollection;
         $this->transactionRepository = $transactionRepository;
+        $this->cronCancellationTimeout = $this->helper->getCronOrderTimeout() ?? Data::GOCUOTAS_PAYMENT_EXPIRATION;
     }
 
     /**
      * CancelPending
      *
      * @return void
+     * @throws \Exception
      */
     public function cancelPending()
     {
-        $collection = $this->getOrderCollection(self::PENDING, $this->getCreatedAt());
-        foreach ($collection as $order) {
-            if ($order->getState() !== Order::STATE_NEW) {
-                continue;
+        try {
+            $collection = $this->getOrderCollection(self::PENDING, $this->getCreatedAt());
+            if(count($collection) > 0){
+                foreach ($collection as $order) {
+                    if ($order->getState() !== Order::STATE_NEW ||
+                        strtotime($order->getCreatedAt()) > strtotime('-' . $this->cronCancellationTimeout . ' minutes')
+                    ) {
+                        continue;
+                    }
+
+                    // Get Transaction Data
+                    $orderTransaction = $this->getTransaction($order->getId());
+
+                    /**
+                     * If the transactionId is null, I proceed to query the GoCuotas API to check if there is any payment that was not reported to Magento
+                     */
+                    if ($orderTransaction->getTransactionId() === null) {
+                        // We retrieve all payments generated so far based on the current time minus the cancellation minutes.
+                        $searchTransactionDateStart = $this->timezone->date()->modify('-' . ($this->cronCancellationTimeout + 10) . ' minute')->format('Y-m-d H:i');
+                        $searchTransactionDateEnd = $this->timezone->date()->format('Y-m-d H:i');
+
+                        // Request GoCuotas API
+                        $this->helper->logDebug("GoCuotas Cron: Search Payment - Order External ID: #{$order->getIncrementId()} - Date From: $searchTransactionDateStart - To: $searchTransactionDateEnd");
+                        $searchGoCuotasTransactions = $this->goCuotas->searchOrders(
+                            $order->getStoreId(),
+                            $searchTransactionDateStart,
+                            $searchTransactionDateEnd
+                        );
+
+                        $orderTransaction['transaction_id'] = false;
+                        if (count($searchGoCuotasTransactions) > 0) {
+                            // Search Transaction by Order Reference ID
+                            $searchOrder = array_filter($searchGoCuotasTransactions, function ($transaction) use ($order) {
+                                return $transaction['order_reference_id'] === $order->getIncrementId();
+                            });
+
+                            // Order Payment Found?
+                            if(count($searchOrder) > 0) {
+                                $orderGoCuotasTransaction = current($searchOrder);
+                                $orderTransaction['transaction_id'] = $orderGoCuotasTransaction['id'];
+                            } else {
+                                $this->helper->logDebug("GoCuotas Cron: No Payment found. Order Reference ID: #{$order->getIncrementId()}");
+                            }
+                        } else {
+                            $this->helper->logDebug("GoCuotas Cron: No Transactions found. Order Reference ID: #{$order->getIncrementId()}");
+                        }
+                    }
+
+                    // Get GoCuotas Transaction Data
+                    $goCuotasTransaction = $this->goCuotas->getGoCuotasTransaction($order, $orderTransaction['transaction_id']);
+                    if (isset($goCuotasTransaction['status']) && $goCuotasTransaction['status'] !== 'approved') {
+                        $cancelData = [
+                            'status' => 'Cancel',
+                            'external_reference' => $order->getIncrementId(),
+                            'reason' => __('Payment expiration time (%1 minutes)', $this->cronCancellationTimeout),
+                        ];
+                        $this->goCuotas->cancelOrder($order, $orderTransaction->getIncrementId(), $cancelData);
+                    } else {
+                        // Approved Transaction
+                        $additionalData = [
+                            'id' => $goCuotasTransaction['id'],
+                            'status' => $goCuotasTransaction['status'],
+                            'installments' => $goCuotasTransaction['number_of_installments'],
+                            'external_reference' => $goCuotasTransaction['order_reference_id'],
+                            'method' => $this->helper->getPaymentMode($order->getStoreId()) ? 'Modal' : 'Redirect',
+                        ];
+
+                        // Get Transaction Payment Card Data
+                        if ($goCuotasTransaction['payment'] !== null) {
+                            $cardData = $goCuotasTransaction['payment']['card'];
+                            $additionalData['card_number'] = $cardData['number'] ?: 'N/A';
+                            $additionalData['card_name'] = $cardData['name'] ?: 'N/A';
+                        }
+
+                        // Invoice Order
+                        $this->goCuotas->invoiceOrder($order, $goCuotasTransaction['id'], $additionalData);
+                    }
+                }
+            } else {
+                $this->helper->logDebug('GoCuotas Cron: NO PENDING ORDERS');
             }
-            $hasTransaction = $this->getTransaction($order->getId());
-            $cancelMessage = __(
-                'Go Cuotas: Order canceled. Payment expiration time (%1 minutes)',
-                Data::GOCUOTAS_PAYMENT_EXPIRATION
-            );
-            $this->goCuotas->cancelOrder($order, $hasTransaction, $cancelMessage);
+        } catch (\Exception $e) {
+            $this->helper->log('GOCUOTAS CRON ERROR: ' . $e->getMessage());
         }
     }
 
     /**
      * Get Transaction
      *
-     * @param int|string $orderId
-     * @return bool
+     * @param $orderId
+     * @return TransactionInterface|bool
      */
     private function getTransaction($orderId)
     {
         try {
             $transaction = $this->transactionRepository->getByOrderId($orderId);
             if ($transaction) {
-                return $transaction->getOrderId();
+                return $transaction;
             }
         } catch (LocalizedException $e) {
+            $this->helper->log("Cron ERROR - OrderID: $orderId: " . $e->getMessage());
             return false;
         }
     }
@@ -131,7 +197,7 @@ class CancelOrder
      * @param string $createdAt
      * @return OrderCollection
      */
-    private function getOrderCollection($status, string $createdAt): OrderCollection
+    private function getOrderCollection(array $status, string $createdAt): OrderCollection
     {
         $this->orderCollection->getSelect()
             ->joinLeft(
@@ -153,7 +219,7 @@ class CancelOrder
      */
     public function getCreatedAt(): string
     {
-        $timeInterval = Data::GOCUOTAS_PAYMENT_EXPIRATION;
+        $timeInterval = $this->cronCancellationTimeout;
         $prevDate = date_create(date('Y-m-d H:i:s', strtotime("-{$timeInterval} min")));
         return $prevDate->format('Y-m-d H:i:s');
     }

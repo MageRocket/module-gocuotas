@@ -11,14 +11,17 @@
 $viewModel = $block->getViewModel();
 $storeId = $block->getStoreId();
 $product = $block->getProduct();
+$moduleEnabled = $viewModel->isActive($storeId);
 $goCuotasWidget = $viewModel->getPDPWidget($product, $storeId);
 $goCuotasLogo = $viewModel->getGoCuotasLogo($storeId);
 ?>
-<div id="gocuotas-widget">
-    <div class="gocuotas-widget-logo">
-        <img src="<?=$escaper->escapeUrl($goCuotasLogo) ?>" alt="Go Cuotas"/>
+<?php if ($moduleEnabled): ?>
+    <div id="gocuotas-widget">
+        <div class="gocuotas-widget-logo">
+            <img src="<?=$escaper->escapeUrl($goCuotasLogo) ?>" alt="Go Cuotas"/>
+        </div>
+        <div class="gocuotas-widget-text">
+            <p><?=$escaper->escapeHtml($goCuotasWidget, ['b','u','strong']);?></p>
+        </div>
     </div>
-    <div class="gocuotas-widget-text">
-        <p><?=$escaper->escapeHtml($goCuotasWidget, ['b','u','strong']);?></p>
-    </div>
-</div>
+<?php endif; ?>

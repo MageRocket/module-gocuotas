@@ -123,7 +123,7 @@ class Callback implements ActionInterface
                 // Prepare Additional Data
                 $additionalData = [
                     'method' => 'redirect',
-                    'external_reference' => $order->getIncrementId(),
+                    'external_reference' => $order->getIncrementId()
                 ];
 
                 // Compare Token
@@ -131,11 +131,7 @@ class Callback implements ActionInterface
                 $tokenFailure = $this->helper->generateToken($order, 'denied');
                 $tokenCanceled = $this->helper->generateToken($order, 'cancel');
                 if ($callbackToken === $tokenSuccess) {
-                    $additionalData['status'] = 'approved';
                     $path = 'checkout/onepage/success';
-                    if (!$this->goCuotas->invoiceOrder($order, $order->getId(), $additionalData)) {
-                        throw new Exception(__('Order could not be invoiced.'));
-                    }
                 } elseif ($callbackToken === $tokenFailure) {
                     $additionalData['status'] = 'denied';
                     if (!$this->goCuotas->cancelOrder($order, $order->getId(), $additionalData)) {
@@ -145,14 +141,19 @@ class Callback implements ActionInterface
                 } elseif ($callbackToken === $tokenCanceled) {
                     $additionalData['status'] = 'cancel';
                     $additionalData['method'] = 'modal';
-                    if (!$this->goCuotas->cancelOrder($order, $order->getId(), $additionalData)) {
-                        throw new Exception(__('Order could not be canceled.'));
-                    }
+
                     // Timeout cancel?
                     if ($this->request->getParam('timeout') !== null) {
+                        $additionalData['reason'] = __('Waiting time exceeded');
                         $this->session->setErrorMessage(__('Waiting time exceeded. Please try again.'));
                     } else {
+                        $additionalData['reason'] = __('Payment canceled by Customer');
                         $this->session->setErrorMessage(__('Go Cuotas Payment canceled by Customer'));
+                    }
+
+                    // Cancel Order
+                    if (!$this->goCuotas->cancelOrder($order, $order->getId(), $additionalData)) {
+                        throw new Exception(__('Order could not be canceled.'));
                     }
                 } else {
                     // Unknown

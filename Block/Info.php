@@ -21,6 +21,7 @@ class Info extends \Magento\Payment\Block\Info
         ['field' => 'installments', 'title' => 'Installments'],
         ['field' => 'method', 'title' => 'Payment Method'],
         ['field' => 'status', 'title' => 'Payment Status'],
+        ['field' => 'reason', 'title' => 'Reason'],
         ['field' => 'card_number', 'title' => 'Card Number'],
         ['field' => 'card_name', 'title' => 'Card Name']
     ];

@@ -14,4 +14,8 @@
             </argument>
         </arguments>
     </type>
+
+    <type name="Magento\Version\Controller\Index\Index">
+        <plugin name="goCuotasVersionPlugin" type="MageRocket\GoCuotas\Plugin\Controller\Version\IndexPlugin"/>
+    </type>
 </config>

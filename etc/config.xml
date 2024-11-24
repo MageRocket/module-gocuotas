@@ -58,6 +58,9 @@
                     <status_approved>processing</status_approved>
                     <status_rejected>canceled</status_rejected>
                 </order>
+                <cron>
+                    <order_timeout>30</order_timeout>
+                </cron>
             </gocuotas>
         </payment>
     </default>

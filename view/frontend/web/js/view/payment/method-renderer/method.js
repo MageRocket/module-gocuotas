@@ -118,18 +118,30 @@ define([
          */
         createGoCuotasTransaction: function (serviceUrl) {
             let self = this;
-            $.ajax({
+            var transactionAjaxConfig = {
                 url: serviceUrl,
                 contentType: 'application/json',
                 type: 'GET'
-            }).done(function (response) {
+            }
+            let forceRedirect = self.detectBrowser() === 'sa';
+            if(forceRedirect){
+                transactionAjaxConfig.data = {
+                    forceRedirect: forceRedirect
+                };
+            }
+            $.ajax(transactionAjaxConfig).done(function (response) {
+                if (response.length <= 0) {
+                    window.location.href = '/checkout/onepage/failure';
+                    return;
+                }
+                
                 if (response.error) {
                     window.location.href = response.failure_url;
-                    return false;
+                    return;
                 }
-                // Modal or Redirect?
+
                 // Force Redirect Mode on Mobile / Tablet
-                if (self.getPaymentMode() && !self.detectDevice()) {
+                if (self.getPaymentMode() && !self.detectDevice() && !forceRedirect) {
                     // Modal
                     self.createModal(response);
                 } else {
@@ -138,7 +150,7 @@ define([
                 }
             }).fail(function (error) {
                 window.location.href = '/checkout/onepage/failure';
-                return false;
+                return;
             });
         },
 
@@ -168,13 +180,15 @@ define([
                         window.location.href = goCuotas_cancel;
                     }
                 }],
-                keyEventHandlers: {escapeKey: function () {return;}}
+                keyEventHandlers: {escapeKey: function () {
+                    return;
+                }}
             };
             // Instance Modal and Open
             let goCuotasModal = modal(options, $('#gocuotas-content'));
             $('#gocuotas-content').modal('openModal');
-            // Hide Loader
             fullScreenLoader.stopLoader();
+
             // After X minutes, redirect to the cancellation page
             let paymentTimeOutMinutes = 28;
             setTimeout(function () {
@@ -194,6 +208,31 @@ define([
                 mobile: 0
             };
             return screenWidth < breakpoints.desktop;
+        },
+
+        /**
+         * Detect Browser Agent
+         * @returns {string}
+         */
+        detectBrowser: function () {
+            let userAgent = navigator.userAgent;
+            let userAgentName = "";
+            if (userAgent.match(/chrome|chromium|crios/i)) {
+                userAgentName = 'gc';
+            } else if (userAgent.match(/firefox|fxios/i)) {
+                userAgentName = 'mf';
+            } else if (userAgent.match(/safari/i)) {
+                userAgentName = 'sa';
+            } else if (userAgent.match(/opr\//i)) {
+                userAgentName = 'op';
+            } else if (userAgent.match(/edg/i)) {
+                userAgentName = 'ed';
+            } else if (userAgent.match(/trident/i)) {
+                userAgentName = 'ie';
+            } else {
+                userAgentName = 'ot';
+            }
+            return userAgentName;
         }
     });
 });

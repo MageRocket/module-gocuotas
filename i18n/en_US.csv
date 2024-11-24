@@ -112,3 +112,12 @@
 "Card Name","Card Name"
 "Card Number: <b>%1</b>","Card Number: <b>%1</b>"
 "Card Name: <b>%1</b>","Card Name: <b>%1</b>"
+"Reason","Reason"
+"Payment canceled by Customer","Payment canceled by Customer"
+"Waiting time exceeded","Waiting time exceeded"
+"Payment expiration time (%1 minutes)","Payment expiration time (%1 minutes)"
+"Reason: <b>%1</b><br>","Reason: <b>%1</b><br>"
+"<b class='donotchange'>ATTENTION</b>: Determines the timeout before an order is canceled due to lack of payment. The default is 30 minutes, but you can increase this limit. Remember, this is subject to the time set by GoCuotas","<b class='donotchange'>ATTENTION</b>: Determines the timeout before an order is canceled due to lack of payment. The default is 30 minutes, but you can increase this limit. Remember, this is subject to the time set by GoCuotas
+"The time must be expressed in minutes","The time must be expressed in minutes"
+"Order Cancellation Timeout","Order Cancellation Timeout"
+"Cron Configuration","Cron Configuration"

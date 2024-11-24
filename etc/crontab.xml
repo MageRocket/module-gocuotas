@@ -9,7 +9,7 @@
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
     <group id="magerocket_gocuotas_jobs">
         <job name="gocuotas_order_cancel" instance="MageRocket\GoCuotas\Cron\CancelOrder" method="cancelPending">
-            <schedule>*/5 * * * *</schedule>
+            <schedule>*/1 * * * *</schedule>
         </job>
     </group>
 </config>
