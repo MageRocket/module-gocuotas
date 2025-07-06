@@ -1,7 +1,7 @@
 <?php
 /**
  * @author MageRocket
- * @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+ * @copyright Copyright (c) 2025 MageRocket (https://magerocket.com/)
  * @link https://magerocket.com/
  */
 
@@ -9,6 +9,7 @@ namespace MageRocket\GoCuotas\Logger\Handler;
 
 use Magento\Framework\Logger\Handler\Base;
 use Monolog\Logger;
+use Monolog\LogRecord;
 
 class AbstractHandler extends Base
 {
@@ -29,10 +30,10 @@ class AbstractHandler extends Base
     /**
      * Is Handling
      *
-     * @param array $record
+     * @param array|LogRecord $record
      * @return bool
      */
-    public function isHandling(array $record): bool
+    public function isHandling($record): bool
     {
         return in_array($record['level'], $this->loggerTypes);
     }
