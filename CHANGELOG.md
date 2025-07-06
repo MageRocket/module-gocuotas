@@ -1,7 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [1.0.4] - 2024-11-25
+## [1.0.5] - 2025-07-05
+
+### Updated
+- Cron modified to check with GoCuotas if there is an unreported payment for the order before canceling it.
+- Copyright Year
+
+## [1.0.4] - 2024-11-06
 
 ### Added
 - New configuration added that allows the merchant to modify the waiting time before canceling an order.

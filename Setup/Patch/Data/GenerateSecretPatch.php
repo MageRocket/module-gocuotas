@@ -1,7 +1,7 @@
 <?php
 /**
  * @author MageRocket
- * @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+ * @copyright Copyright (c) 2025 MageRocket (https://magerocket.com/)
  * @link https://magerocket.com/
  */
 
@@ -13,6 +13,8 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Math\Random;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use MageRocket\GoCuotas\Helper\Data;
+use Magento\Framework\App\Cache\TypeListInterface as CacheTypeList;
 
 class GenerateSecretPatch implements DataPatchInterface
 {
@@ -43,20 +45,36 @@ class GenerateSecretPatch implements DataPatchInterface
     protected EncryptorInterface $encryptor;
 
     /**
+     * @var Data $helper
+     */
+    protected Data $helper;
+
+    /**
+     * @var CacheTypeList $cacheTypeList
+     */
+    protected cacheTypeList $cacheTypeList;
+
+    /**
+     * @param Data $helper
      * @param Random $random
      * @param WriterInterface $writer
+     * @param CacheTypeList $cacheTypeList
      * @param EncryptorInterface $encryptor
      * @param ModuleDataSetupInterface $moduleDataSetup
      */
     public function __construct(
+        Data $helper,
         Random $random,
         WriterInterface $writer,
+        CacheTypeList $cacheTypeList,
         EncryptorInterface $encryptor,
         ModuleDataSetupInterface $moduleDataSetup
     ) {
+        $this->helper = $helper;
         $this->random = $random;
         $this->writer = $writer;
         $this->encryptor = $encryptor;
+        $this->cacheTypeList = $cacheTypeList;
         $this->moduleDataSetup = $moduleDataSetup;
     }
 
@@ -64,17 +82,20 @@ class GenerateSecretPatch implements DataPatchInterface
      * Do Upgrade.
      *
      * @return void
-     * @throws LocalizedException
      */
     public function apply()
     {
         $this->moduleDataSetup->getConnection()->startSetup();
-        // Write Secret
-        $secret = $this->random->getRandomString(10);
-        $this->writer->save(
-            self::GOCUOTAS_SECRET_XML_PATH,
-            $this->encryptor->encrypt(self::GOCUTAS_SECRET_PREFIX . $secret)
-        );
+        try {
+            $secret = self::GOCUTAS_SECRET_PREFIX . $this->random->getRandomString(25);
+            $this->writer->save(
+                self::GOCUOTAS_SECRET_XML_PATH,
+                $this->encryptor->encrypt($secret)
+            );
+            $this->cacheTypeList->cleanType('config');
+        } catch (LocalizedException $e) {
+            $this->helper->log($e->getMessage());
+        }
         $this->moduleDataSetup->getConnection()->endSetup();
     }
 

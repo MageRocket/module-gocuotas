@@ -5,15 +5,16 @@
     </a>
     <p align="center">Module by <a href="https://magerocket.com">MageRocket</a></p>
     <img src="https://img.shields.io/badge/magento-2.4-brightgreen.svg?logo=magento&longCache=true&style=flat-square" alt="Supported Magento Versions"/>
+    <a href="https://github.com/MageRocket/module-gocuotas/graphs/commit-activity" target="_blank"><img src="https://img.shields.io/badge/maintained-yes-brightgreen.svg?style=flat-square" alt="Maintained - Yes"/></a>
     <a href="https://packagist.org/packages/magerocket/module-gocuotas" target="_blank"><img src="https://img.shields.io/packagist/v/magerocket/module-gocuotas.svg?style=flat-square" alt="Latest Stable Version"/></a>
-    <a href="https://packagist.org/packages/magerocket/module-gocuotas" target="_blank"><img src="https://poser.pugx.org/magerocket/module-gocuotas/downloads" alt="Composer Downloads"/></a>
-    <a href="https://github.com/MageRocket/module-gocuotas/graphs/commit-activity" target="_blank"><img src="https://img.shields.io/badge/maintained%3F-yes-brightgreen.svg?style=flat-square" alt="Maintained - Yes"/></a>
+    <a href="https://packagist.org/packages/magerocket/module-gocuotas" target="_blank"><img src="https://img.shields.io/packagist/dt/magerocket/module-gocuotas?style=flat-square" alt="Composer Downloads"/></a>
+    <a href="https://packagist.org/packages/magerocket/module-gocuotas" target="_blank"><img src="https://img.shields.io/packagist/dm/magerocket/module-gocuotas?style=flat-square&color=rgb(68%2C%20204%2C%2017)"/></a>
     <a href="https://opensource.org/licenses/MIT" target="_blank"><img src="https://img.shields.io/badge/license-MIT-blue.svg"/></a>
     <hr>
 </div>
 
 ## Description
-Go Cuotas module for Magento 2. The module was developed using Go Cuotas API documentation.
+Go Cuotas module for Magento 2 / Adobe Commerce. The module was developed using Go Cuotas API documentation.
 
 ### Guides
 [🇺🇸 Install Guide](https://docs.magerocket.com/guides/go-cuotas/version/english)
