@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
 <!--
   @author MageRocket
-  @copyright Copyright (c) 2024 MageRocket (https://magerocket.com/)
+  @copyright Copyright (c) 2025 MageRocket (https://magerocket.com/)
   @link https://magerocket.com/
   -->
 
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column"
-      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceBlock name="checkout.root">
             <arguments>
