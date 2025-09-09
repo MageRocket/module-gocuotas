@@ -240,7 +240,7 @@ class GoCuotas
             "Content-Type" => "application/json",
             "Authorization" => "Bearer $accessToken",
         ];
-        $requestData['body'] = $this->serializeData($paymentData);
+        $requestData['body'] = $this->jsonSerializer->serialize($paymentData);
         $createPaymentEndpoint = $this->helper->buildRequestURL(Endpoints::CREATE_PAYMENT, $storeId);
         $goCuotasPreference = $this->webservice->doRequest($createPaymentEndpoint, $requestData, "POST");
         $responseBody = $this->unserializeData($goCuotasPreference->getBody()->getContents());
@@ -284,7 +284,7 @@ class GoCuotas
             // Convert amount in cents
             $refundData['amount_in_cents'] = round(($amount * 100));
         }
-        $requestData['body'] = $this->serializeData($refundData);
+        $requestData['body'] = $this->jsonSerializer->serialize($refundData);
         $endpoint = sprintf(Endpoints::CREATE_REFUND, $paymentId);
         $createPaymentEndpoint = $this->helper->buildRequestURL($endpoint, $storeId);
         $goCuotasPreference = $this->webservice->doRequest($createPaymentEndpoint, $requestData, "DELETE");
@@ -701,7 +701,7 @@ class GoCuotas
         );
         $responseBody = $this->unserializeData($goCuotasAuthenticationRequest->getBody()->getContents());
         if ($goCuotasAuthenticationRequest->getStatusCode() != 200) {
-            $this->helper->log("Get AccessToken Request: " . $this->serializeData($requestData));
+            $this->helper->log("Get AccessToken Request: " . $this->serializeData($requestData, true));
             $this->helper->log("Get AccessToken Response: " . $this->serializeData($responseBody));
             return null;
         }
@@ -722,7 +722,7 @@ class GoCuotas
             // Update Flag
             $this->credentialValidation($storeId, true);
             // Log Debug
-            $this->helper->logDebug('Create Token Payload: ' . $this->serializeData($requestData));
+            $this->helper->logDebug('Create Token Payload: ' . $this->serializeData($requestData, true));
             $this->helper->logDebug('Create Token Response: ' . $this->serializeData($responseBody ?? []));
             return $tokenModel;
         } catch (\Exception $e) {
@@ -879,28 +879,31 @@ class GoCuotas
      * Serialize Data
      *
      * @param array|string $data
+     * @param bool $maskData
      * @return bool|string
      */
-    private function serializeData($data)
+    private function serializeData($data, $maskData = false)
     {
         // Remove Sensible Data
-        if(isset($data['email'])){
-            $data['email'] = $this->helper->maskSensitiveData($data['email'],5,5);
-        }
-        if(isset($data['password'])){
-            $data['password'] = $this->helper->maskSensitiveData($data['password']);
-        }
-        if(isset($data['headers']['Authorization'])){
-            $data['headers']['Authorization'] = $this->helper->maskSensitiveData($data['headers']['Authorization'],1,10);
-        }
-        if(isset($data['token'])){
-            $data['token'] = $this->helper->maskSensitiveData($data['token'],1,10);
-        }
-        if(isset($data['form_params']['email'])){
-            $data['form_params']['email'] = $this->helper->maskSensitiveData($data['form_params']['email'],5,5);
-        }
-        if(isset($data['form_params']['password'])){
-            $data['form_params']['password'] = $this->helper->maskSensitiveData($data['form_params']['password'],5,5);
+        if($maskData) {
+            if(isset($data['email'])){
+                $data['email'] = $this->helper->maskSensitiveData($data['email'],5,5);
+            }
+            if(isset($data['password'])){
+                $data['password'] = $this->helper->maskSensitiveData($data['password']);
+            }
+            if(isset($data['headers']['Authorization'])){
+                $data['headers']['Authorization'] = $this->helper->maskSensitiveData($data['headers']['Authorization'],1,10);
+            }
+            if(isset($data['token'])){
+                $data['token'] = $this->helper->maskSensitiveData($data['token'],1,10);
+            }
+            if(isset($data['form_params']['email'])){
+                $data['form_params']['email'] = $this->helper->maskSensitiveData($data['form_params']['email'],5,5);
+            }
+            if(isset($data['form_params']['password'])){
+                $data['form_params']['password'] = $this->helper->maskSensitiveData($data['form_params']['password'],5,5);
+            }
         }
         return $this->jsonSerializer->serialize($data);
     }
