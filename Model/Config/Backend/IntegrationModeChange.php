@@ -40,14 +40,14 @@ class IntegrationModeChange extends Value
      * @param array $data
      */
     public function __construct(
-        GoCuotas $goCuotas,
-        Context $context,
-        Registry $registry,
+        GoCuotas             $goCuotas,
+        Context              $context,
+        Registry             $registry,
         ScopeConfigInterface $config,
-        TypeListInterface $cacheTypeList,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
-        array $data = []
+        TypeListInterface    $cacheTypeList,
+        ?AbstractResource    $resource = null,
+        ?AbstractDb          $resourceCollection = null,
+        array                $data = []
     ) {
         parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);
         $this->goCuotas = $goCuotas;
