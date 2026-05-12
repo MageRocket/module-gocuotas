@@ -1,7 +1,7 @@
 <?php
 /**
  * @author MageRocket
- * @copyright Copyright (c) 2025 MageRocket (https://magerocket.com/)
+ * @copyright Copyright (c) 2026 MageRocket (https://magerocket.com/)
  * @link https://magerocket.com/
  */
 
@@ -52,18 +52,18 @@ class Webhook implements WebhookInterface
      *
      * @param string $token
      * @param string $status
-     * @param string $order_id
+     * @param string|null $order_id
      * @param string $order_reference_id
-     * @param string $number_of_installments
+     * @param string|null $number_of_installments
      * @return array
      * @throws Exception
      */
     public function updateStatus(
         string $token,
         string $status,
-        string $order_id,
-        string $order_reference_id,
-        string $number_of_installments
+        ?string $order_id = null,
+        string $order_reference_id = '',
+        ?string $number_of_installments = null
     ): array {
         // Get Transaction
         $transaction = $this->goCuotas->getTransactionByExternalReference($order_reference_id);
@@ -111,11 +111,13 @@ class Webhook implements WebhookInterface
         ];
 
         // Get Transaction Payment Card Data
-        $goCuotasTransaction = $this->goCuotas->getGoCuotasTransaction($order, $goCuotasTransactionID);
-        if ($goCuotasTransaction['payment'] !== null) {
-            $cardData = $goCuotasTransaction['payment']['card'];
-            $additionalData['card_number'] = $cardData['number'] ?: 'N/A';
-            $additionalData['card_name'] = $cardData['name'] ?: 'N/A';
+        if ($goCuotasTransactionID !== null) {
+            $goCuotasTransaction = $this->goCuotas->getGoCuotasTransaction($order, $goCuotasTransactionID);
+            if (!empty($goCuotasTransaction['payment'])) {
+                $cardData = $goCuotasTransaction['payment']['card'];
+                $additionalData['card_number'] = $cardData['number'] ?: 'N/A';
+                $additionalData['card_name'] = $cardData['name'] ?: 'N/A';
+            }
         }
 
         // Process Payment
@@ -127,6 +129,8 @@ class Webhook implements WebhookInterface
                 $response = ['error' => false, 'status' => 'Order Approved'];
                 break;
             case 'denied':
+            case 'cancelled':
+            case 'canceled':
                 if (!$this->goCuotas->cancelOrder($order, $goCuotasTransactionID, $additionalData)) {
                     throw new \Magento\Framework\Webapi\Exception(__('Order could not be canceled.'));
                 }
