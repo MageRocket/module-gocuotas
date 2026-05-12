@@ -2,7 +2,7 @@
 
 /**
  * @author MageRocket
- * @copyright Copyright (c) 2025 MageRocket (https://magerocket.com/)
+ * @copyright Copyright (c) 2026 MageRocket (https://magerocket.com/)
  * @link https://magerocket.com/
  */
 
@@ -15,6 +15,7 @@ use MageRocket\GoCuotas\Helper\Data;
 use MageRocket\GoCuotas\Model\GoCuotas;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\ResourceModel\Order\Collection as OrderCollection;
+use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
 use Magento\Sales\Model\Order;
 
 class CancelOrder
@@ -44,9 +45,9 @@ class CancelOrder
     protected TimezoneInterface $timezone;
 
     /**
-     * @var OrderCollection $orderCollection
+     * @var OrderCollectionFactory $orderCollectionFactory
      */
-    protected OrderCollection $orderCollection;
+    protected OrderCollectionFactory $orderCollectionFactory;
 
     /**
      * @var $cronCancellationTimeout int|string
@@ -59,20 +60,20 @@ class CancelOrder
      * @param Data $helper
      * @param GoCuotas $goCuotas
      * @param TimezoneInterface $timezone
-     * @param OrderCollection $orderCollection
+     * @param OrderCollectionFactory $orderCollectionFactory
      * @param TransactionRepositoryInterface $transactionRepository
      */
     public function __construct(
         Data $helper,
         GoCuotas $goCuotas,
         TimezoneInterface $timezone,
-        OrderCollection $orderCollection,
+        OrderCollectionFactory $orderCollectionFactory,
         TransactionRepositoryInterface $transactionRepository
     ) {
         $this->helper = $helper;
         $this->goCuotas = $goCuotas;
         $this->timezone = $timezone;
-        $this->orderCollection = $orderCollection;
+        $this->orderCollectionFactory = $orderCollectionFactory;
         $this->transactionRepository = $transactionRepository;
         $this->cronCancellationTimeout = $this->helper->getCronOrderTimeout() ?? Data::GOCUOTAS_PAYMENT_EXPIRATION;
     }
@@ -101,7 +102,7 @@ class CancelOrder
                     /**
                      * If the transactionId is null, I proceed to query the GoCuotas API to check if there is any payment that was not reported to Magento
                      */
-                    if ($orderTransaction->getTransactionId() === null) {
+                    if ($orderTransaction === false || $orderTransaction->getTransactionId() === null) {
                         // We retrieve all payments generated so far based on the current time minus the cancellation minutes.
                         $searchTransactionDateStart = $this->timezone->date()->modify('-' . ($this->cronCancellationTimeout + 10) . ' minute')->format('Y-m-d H:i');
                         $searchTransactionDateEnd = $this->timezone->date()->format('Y-m-d H:i');
@@ -114,7 +115,7 @@ class CancelOrder
                             $searchTransactionDateEnd
                         );
 
-                        $orderTransaction['transaction_id'] = false;
+                        $transactionId = false;
                         if (count($searchGoCuotasTransactions) > 0) {
                             // Search Transaction by Order Reference ID
                             $searchOrder = array_filter($searchGoCuotasTransactions, function ($transaction) use ($order) {
@@ -124,24 +125,26 @@ class CancelOrder
                             // Order Payment Found?
                             if(count($searchOrder) > 0) {
                                 $orderGoCuotasTransaction = current($searchOrder);
-                                $orderTransaction['transaction_id'] = $orderGoCuotasTransaction['id'];
+                                $transactionId = $orderGoCuotasTransaction['id'];
                             } else {
                                 $this->helper->logDebug("GoCuotas Cron: No Payment found. Order Reference ID: #{$order->getIncrementId()}");
                             }
                         } else {
                             $this->helper->logDebug("GoCuotas Cron: No Transactions found. Order Reference ID: #{$order->getIncrementId()}");
                         }
+                    } else {
+                        $transactionId = $orderTransaction->getTransactionId();
                     }
 
                     // Get GoCuotas Transaction Data
-                    $goCuotasTransaction = $this->goCuotas->getGoCuotasTransaction($order, $orderTransaction['transaction_id']);
+                    $goCuotasTransaction = $this->goCuotas->getGoCuotasTransaction($order, $transactionId);
                     if (isset($goCuotasTransaction['status']) && $goCuotasTransaction['status'] !== 'approved') {
                         $cancelData = [
                             'status' => 'Cancel',
                             'external_reference' => $order->getIncrementId(),
                             'reason' => __('Payment expiration time (%1 minutes)', $this->cronCancellationTimeout),
                         ];
-                        $this->goCuotas->cancelOrder($order, $orderTransaction->getIncrementId(), $cancelData);
+                        $this->goCuotas->cancelOrder($order, $transactionId ?: null, $cancelData);
                     } else {
                         // Approved Transaction
                         $additionalData = [
@@ -175,7 +178,7 @@ class CancelOrder
      * Get Transaction
      *
      * @param $orderId
-     * @return TransactionInterface|bool
+     * @return TransactionInterface|false
      */
     private function getTransaction($orderId)
     {
@@ -186,8 +189,8 @@ class CancelOrder
             }
         } catch (LocalizedException $e) {
             $this->helper->log("Cron ERROR - OrderID: $orderId: " . $e->getMessage());
-            return false;
         }
+        return false;
     }
 
     /**
@@ -199,17 +202,18 @@ class CancelOrder
      */
     private function getOrderCollection(array $status, string $createdAt): OrderCollection
     {
-        $this->orderCollection->getSelect()
+        $collection = $this->orderCollectionFactory->create();
+        $collection->getSelect()
             ->joinLeft(
                 ["sop" => "sales_order_payment"],
                 'main_table.entity_id = sop.parent_id',
                 ['method']
             )->where('sop.last_trans_id IS NULL');
-        $this->orderCollection->addFieldToFilter('sop.method', ['in' => self::PAYMENT_METHOD])
+        $collection->addFieldToFilter('sop.method', ['in' => self::PAYMENT_METHOD])
             ->addFieldToFilter('main_table.status', ['in' => $status])
             ->addFieldToFilter('main_table.created_at', ['lteq' => $createdAt])
             ->setOrder('main_table.created_at', 'ASC');
-        return $this->orderCollection;
+        return $collection;
     }
 
     /**

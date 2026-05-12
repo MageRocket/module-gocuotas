@@ -1,7 +1,7 @@
 <?php
 /**
  * @author MageRocket
- * @copyright Copyright (c) 2025 MageRocket (https://magerocket.com/)
+ * @copyright Copyright (c) 2026 MageRocket (https://magerocket.com/)
  * @link https://magerocket.com/
  */
 
@@ -16,17 +16,17 @@ interface WebhookInterface
      *
      * @param string $token
      * @param string $status
-     * @param string $order_id
+     * @param string|null $order_id
      * @param string $order_reference_id
-     * @param string $number_of_installments
+     * @param string|null $number_of_installments
      * @return array
      * @throws Exception
      */
     public function updateStatus(
         string $token,
         string $status,
-        string $order_id,
-        string $order_reference_id,
-        string $number_of_installments
+        ?string $order_id = null,
+        string $order_reference_id = '',
+        ?string $number_of_installments = null
     ): array;
 }

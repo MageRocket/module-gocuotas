@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.0.7] - 2026-05-08
+
+### Updated
+- Fixed Cron filter accumulation by using Order CollectionFactory instead of a shared Collection instance.
+- Fixed false transaction handling in Cron when no transaction exists for the order.
+- Webhook now allows null `order_id` and `number_of_installments` parameters.
+- Webhook now processes `cancelled`/`canceled` statuses as order cancellations.
+
 ## [1.0.6] - 2025-09-09
 
 ### Updated
